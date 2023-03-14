@@ -23,9 +23,29 @@
 \section{Method}
 \subsection{Data}
 \subsection{Model}
+In this section, we will describe our Gaussian Process (GP) model and the likelihood calculation process used to estimate the model parameters. 
+
+We assume that the prior over $y_{true}$ follows a multivariate Gaussian distribution, with a mean vector of zeros and a covariance matrix $\Sigma$. We use the quasi-periodic kernel to define the covariance matrix $\Sigma$, which is defined by \texttt{StarryProcess}.
+We assume that the observations $y_{obs}$ are corrupted by additive Gaussian noise, such that:
+\begin{equation}
+    y_{obs} = y_{true} + \epsilon
+\end{equation}
+
+where $\epsilon \sim \mathcal{N}(0, \sigma_n^2)$ is the noise term. Given the GP prior and the likelihood function, we can calculate the joint posterior distribution over the hyperparameters $\Theta$ and the true function $y_{true}$ given the observed data $y_{obs}$:
+\begin{equation}
+    P(\Theta, y_{true} \mid y_{obs}) \propto P(\Theta) P(y_{true} \mid \Theta) P(y_{obs} \mid y_{true})
+\end{equation}
+
+where $P(\Theta)$ is the prior distribution over the hyperparameters, $P(y_{true} \mid \Theta)$ is the likelihood of the true function given the hyperparameters, and $P(y_{obs} \mid y_{true})$ is the likelihood of the observed data given the true function.
+We calculate the log-likelihood function, given by:
+\begin{equation}
+    \log{P(y_{obs} \mid \Theta)} = -\frac{1}{2} (y_{obs} - \mu)^T \Sigma^{-1} (y_{obs} - \mu) -\frac{1}{2} log |K| - \frac{n}{2} log 2\pi
+\end{equation}
+
+
 \section{Simulations}
-\section{Short light curve}
-\section{Long light curves (multiple transits)}
+\subsection{Short light curve}
+\subsection{Long light curves (multiple transits)}
 \section{Results and Discussion}
 
 \bibliography{bib}
