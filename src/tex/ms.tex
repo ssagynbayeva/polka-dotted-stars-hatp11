@@ -20,18 +20,106 @@
 \section{Introduction}
 \label{sec:intro}
 
-\section{Method}
-\subsection{Data}
-\subsection{Model}
+\section{The Data}
+\section{Hierarchical Bayesian model}
+\subsection{The Model}
 In this section, we will describe our Gaussian Process (GP) model and the likelihood calculation process used to estimate the model parameters. 
 
-We assume that the prior over $y_{true}$ follows a multivariate Gaussian distribution, with a mean vector of zeros and a covariance matrix $\Sigma$. We use the quasi-periodic kernel to define the covariance matrix $\Sigma$, which is defined by \texttt{StarryProcess}.
+We solve for a large set of parameters that includes the GP hyperparameters, the star's and the planet's orbital parameters, respectively. 
+\begin{linenomath}\begin{align}
+    \label{eq:largetheta}
+    \pmb{\Theta}
+     & =
+    \left(
+    \theta_\bullet
+    \,\,\,
+    \theta_\star
+    \,\,\,
+    \theta_p
+    \right)^\top
+    \quad,
+\end{align}\end{linenomath}
+
+Separately, these parameters are defined as 
+\begin{linenomath}\begin{align}
+    \label{eq:thetastar}
+    \pmb{\theta_\star}
+     & =
+    \left(
+    i_\star
+    \,\,\,
+    m_\star
+    \,\,\,
+    u_1
+    \,\,\,
+    u_2
+    \,\,\,
+    P_\star
+    \right)^\top
+    \quad,
+\end{align}\end{linenomath}
+where $i_\star$ is the star's orbital inclination, $m_\star$ is the stellar mass in the units of the solar mass, $u_1$ and $u_2$ are limb-darkening coefficients,
+and $P_\star$ is the rotational period of the star.
+
+\begin{linenomath}\begin{align}
+    \label{eq:thetap}
+    \pmb{\theta_p}
+     & =
+    \left(
+    i_p
+    \,\,\,
+    e
+    \,\,\,
+    \psi
+    \,\,\,
+    \omega
+    \,\,\,
+    P
+    \,\,\,
+    t_0
+    \,\,\,
+    R_p/R_\star
+    \right)^\top
+    \quad,
+\end{align}\end{linenomath}
+where $i_p$ is the planet's orbital inclination, $e$ is its eccenticity, $\psi$ is the stellar obliquity, $\omega$ is the argument of pericenter of the planet,
+$P$ is the rotational period of the planet, $t_0$ is the transit start time, and $R_p/R_\star$ is the planet to star radius ratio.
+
+We represent the GP hyperparameters as \emph{physically interesting} set of parameters $\pmb{\theta}_\bullet$ \citep{Luger2021}:
+%
+\begin{linenomath}\begin{align}
+        \label{eq:thetaspot}
+        \pmb{\theta}_\bullet
+         & =
+        \left(
+        n
+        \,\,\,
+        c
+        \,\,\,
+        \mu_\phi
+        \,\,\,
+        \sigma_\phi
+        \,\,\,
+        r
+        \right)^\top
+        \quad,
+    \end{align}\end{linenomath}
+%
+where $n$ is the number of starspots, $c$ is their contrast (defined as the intensity difference between the spot and the 
+background intensity, as a fraction of the background intensity),
+$\mu_\phi$ and $\sigma_\phi$ are the mode and standard deviation
+of the spot latitude distribution, respectively, and $r$ is the radius
+of the spots.
+
+We assume that the prior over $y_{true}$ follows a multivariate Gaussian distribution, with a mean vector of zeros and a covariance 
+matrix $\Sigma$. We use the quasi-periodic kernel to define the covariance matrix $\Sigma$, which is defined by \texttt{StarryProcess}.
 We assume that the observations $y_{obs}$ are corrupted by additive Gaussian noise, such that:
 \begin{equation}
     y_{obs} = y_{true} + \epsilon
 \end{equation}
 
-where $\epsilon \sim \mathcal{N}(0, \sigma_n^2)$ is the noise term. Given the GP prior and the likelihood function, we can calculate the joint posterior distribution over the hyperparameters $\Theta$ and the true function $y_{true}$ given the observed data $y_{obs}$:
+where $\epsilon \sim \mathcal{N}(0, \sigma_n^2)$ is the noise term. Given the GP prior and the likelihood function, we can 
+calculate the joint posterior distribution over the hyperparameters $\Theta$ and the true function $y_{true}$ given the observed data $y_{obs}$:
 \begin{equation}
     P(\Theta, y_{true} \mid y_{obs}) \propto P(\Theta) P(y_{true} \mid \Theta) P(y_{obs} \mid y_{true})
 \end{equation}
@@ -41,7 +129,48 @@ We calculate the log-likelihood function, given by:
 \begin{equation}
     \log{P(y_{obs} \mid \Theta)} = -\frac{1}{2} (y_{obs} - \mu)^T \Sigma^{-1} (y_{obs} - \mu) -\frac{1}{2} log |K| - \frac{n}{2} log 2\pi
 \end{equation}
-
+or, as defined in eq. 14 of \citep{Luger2021}:
+\begin{linenomath}\begin{align}
+    \label{eq:log-like}
+    \ln \mathcal{L}_m\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    =
+     & -\frac{1}{2}
+    \mathbf{r}_m^\top\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \big[
+        \pmb{\Sigma}\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+        +
+        \mathbf{C}_m
+        \big]^{-1}
+    \mathbf{r}_m\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \nonumber       \\[0.75em]
+     & -
+    \frac{1}{2}
+    \ln \Big|
+    \pmb{\Sigma}\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    +
+    \mathbf{C}_m
+    \Big|
+    -
+    \frac{K}{2}
+    \ln \left( 2 \pi \right)
+    \quad,
+\end{align}\end{linenomath}
+where
+%
+\begin{linenomath}\begin{align}
+        \mathbf{r}_m\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+         & \equiv
+        \mathbf{f}_m - \pmb{\mu}\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \end{align}\end{linenomath}
+%
+is defined as the residual vector,
+%
+$\mathbf{C}_m$ is the data covariance
+(which in most cases is a diagonal matrix whose entries
+are the squared uncertainty corresponding to each data point in the light curve),
+%
+$| \cdots |$ denotes the determinant, and $K$ is the number of data points in
+each light curve.%
 
 \section{Simulations}
 \subsection{Short light curve}
