@@ -2,8 +2,13 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - numpy=1.19.2
-  - pip=21.0.1
-  - python=3.9
+  - python=3.8
+  - pip
   - pip:
-      - matplotlib==3.4.3
+      - matplotlib
+      - exoplanet
+      - starry
+      - starry_process
+      - lightkurve
+      - arviz
+      - corner
