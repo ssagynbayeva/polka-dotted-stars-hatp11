@@ -1,6 +1,7 @@
 % Define document class
 \documentclass[twocolumn]{aastex631}
 \usepackage{showyourwork}
+\usepackage{bbold}
 
 % Begin!
 \begin{document}
@@ -118,64 +119,79 @@ $\mu_\phi$ and $\sigma_\phi$ are the mode and standard deviation
 of the spot latitude distribution, respectively, and $r$ is the radius
 of the spots.
 
-We assume that the prior over $y_{true}$ follows a multivariate Gaussian distribution, with a mean vector of zeros and a covariance 
-matrix $\Sigma$. We use the quasi-periodic kernel to define the covariance matrix $\Sigma$, which is defined by \texttt{StarryProcess}.
-We assume that the observations $y_{obs}$ are corrupted by additive Gaussian noise, such that:
+We assume that the prior over $\mathbb{f}_{true}$ follows a multivariate Gaussian distribution, with a mean vector of zeros and a covariance 
+matrix $\pmb{\Sigma}$. We use the quasi-periodic kernel to define the covariance matrix $\pmb{\Sigma}$, which is defined by \texttt{StarryProcess}.
+We assume that the observations $\mathbb{f}_{obs}$ are corrupted by additive Gaussian noise, such that:
 \begin{equation}
-    y_{obs} = y_{true} + \epsilon
+    \mathbb{f}_{obs} = \mathbb{f}_{true} + \epsilon
 \end{equation}
 
 where $\epsilon \sim \mathcal{N}(0, \sigma_n^2)$ is the noise term. Given the GP prior and the likelihood function, we can 
-calculate the joint posterior distribution over the hyperparameters $\Theta$ and the true function $y_{true}$ given the observed data $y_{obs}$:
+calculate the joint posterior distribution over the hyperparameters $\Theta$ and the true function $\mathbb{f}_{true}$ given the observed data $\mathbb{f}_{obs}$:
+%
 \begin{equation}
-    P(\Theta, y_{true} \mid y_{obs}) \propto P(\Theta) P(y_{true} \mid \Theta) P(y_{obs} \mid y_{true})
+    p(\Theta, \mathbb{f}_{true} \mid \mathbb{f}_{obs}) \propto p(\Theta) p(\mathbb{f}_{true} \mid \Theta) p(\mathbb{f}_{obs} \mid \mathbb{f}_{true})
 \end{equation}
-
-where $P(\Theta)$ is the prior distribution over the hyperparameters, $P(y_{true} \mid \Theta)$ is the likelihood of the true function given the hyperparameters, and $P(y_{obs} \mid y_{true})$ is the likelihood of the observed data given the true function.
+%
+where $P(\Theta)$ is the prior distribution over the hyperparameters, $P(\mathbb{f}_{true} \mid \Theta)$ is the likelihood of the true function given the hyperparameters, and $P(y_{obs} \mid y_{true})$ is the likelihood of the observed data given the true function.
 We calculate the log-likelihood function, given by:
-\begin{equation}
-    \log{P(y_{obs} \mid \Theta)} = -\frac{1}{2} (y_{obs} - \mu)^T \Sigma^{-1} (y_{obs} - \mu) -\frac{1}{2} log |K| - \frac{n}{2} log 2\pi
-\end{equation}
-or, as defined in eq. 14 of \citep{Luger2021}:
+%
 \begin{linenomath}\begin{align}
-    \label{eq:log-like}
-    \ln \mathcal{L}_m\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \label{eq:log-likeSabina}
+    \ln p(\mathbb{f}_{obs} \mid \pmb{\Theta}) 
+    =
+    & -\frac{1}{2} (\mathbb{f}_{obs} - \pmb{\mu})^T \pmb{\Sigma}^{-1} (\mathbb{f}_{obs} - \pmb{\mu}) 
+    \nonumber       \\[0.75em]
+    & -
+    \frac{1}{2} \ln |\pmb{\Sigma}| - \frac{n}{2} \ln (2\pi)
+    \quad,
+\end{align}\end{linenomath}
+%
+or, as defined in eq. 14 of \citep{Luger2021}:
+%
+\begin{linenomath}\begin{align}
+    \label{eq:log-likeRodrigo}
+    \ln \mathcal{L}_m\left(\Theta\right)
     =
      & -\frac{1}{2}
-    \mathbf{r}_m^\top\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \mathbf{r}_m^\top\left(\Theta\right)
     \big[
-        \pmb{\Sigma}\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
-        +
-        \mathbf{C}_m
+        \pmb{\Sigma}\left(\Theta\right)
         \big]^{-1}
-    \mathbf{r}_m\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \mathbf{r}_m\left(\Theta\right)
     \nonumber       \\[0.75em]
      & -
     \frac{1}{2}
     \ln \Big|
-    \pmb{\Sigma}\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
-    +
-    \mathbf{C}_m
+    \pmb{\Sigma}\left(\Theta\right)
     \Big|
     -
     \frac{K}{2}
     \ln \left( 2 \pi \right)
     \quad,
 \end{align}\end{linenomath}
+%
 where
 %
 \begin{linenomath}\begin{align}
-        \mathbf{r}_m\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+        \mathbf{r}_m\left(\pmb{\Theta}\right)
          & \equiv
-        \mathbf{f}_m - \pmb{\mu}\left(I, P, \mathbf{u}, \pmb{\theta}_\bullet\right)
+        \mathbf{f}_m - \pmb{\mu}\left(\pmb{\Theta}\right)
     \end{align}\end{linenomath}
 %
 is defined as the residual vector,
 %
-$\mathbf{C}_m$ is the data covariance
-(which in most cases is a diagonal matrix whose entries
-are the squared uncertainty corresponding to each data point in the light curve),
+$\Sigma$ is the full covariance, which is defined as 
 %
+\begin{linenomath}\begin{align}
+    \pmb{\Sigma}\left(\Theta\right)
+     & \equiv
+    \pmb{\Sigma_y} + \pmb{\Sigma_d}
+\end{align}\end{linenomath}
+%
+where $\pmb{\Sigma}(\Theta)$ is the covariance of the distribution over spherical harmonic coefficient
+vectors $\mathbb{y}$, and $\pmb{\Sigma_d}$ is the data covariance, which is a diagonal
+matrix whose entries are the squared uncertainty $\sigma_m^2$ corresponding to each data point in the light curve.
 $| \cdots |$ denotes the determinant, and $K$ is the number of data points in
 each light curve.%
 
