@@ -1,6 +1,10 @@
 % Define document class
 \documentclass[twocolumn]{aastex631}
 \usepackage{showyourwork}
+
+\newcommand{\sbu}{Department of Physics and Astronomy, Stony Brook University, Stony Brook NY 11794, USA}
+\newcommand{\cca}{Center for Computational Astrophysics, Flatiron Institute, New York NY 10010, USA}
+
 \usepackage{bbold}
 
 % Begin!
@@ -10,7 +14,19 @@
 \title{Polka-dotted Stars: Mapping the Surface of HAT-P-11}
 
 % Author list
-\author{Sabina Sagynbayeva}
+\author[0000-0002-6650-3829]{Sabina Sagynbayeva}
+\email{sabina.sagynbayeva@stonybrook.edu}
+\affiliation{\sbu}
+\affiliation{\cca}
+
+\author[0000-0003-1540-8562]{Will M. Farr}
+% \email{wfarr@flatironinstitute.org}
+\affiliation{\sbu}
+\affiliation{\cca}
+
+\author[0000-0002-0296-3826]{Rodrigo Luger}
+% \email{rodluger@gmail.com}
+\affiliation{\cca}
 
 % Abstract with filler text
 \begin{abstract}
@@ -20,6 +36,26 @@
 % Main body with filler text
 \section{Introduction}
 \label{sec:intro}
+The quest to unravel the mysteries of distant planetary systems has led to a fast-evolving field of research, where exoplanet studies are at the forefront of 
+astronomical investigations. Characterizing the surfaces of exoplanet-host stars is crucial for understanding the environments and evolution of their planetary 
+systems. Stellar surface features like spots and flares impact observables including photometric variability, spectral line profiles, and radial velocity shifts. 
+However, directly resolving stellar surfaces remains challenging.
+
+While high-resolution spectroscopy provides the most robust method of determining stellar parameters, obtaining such data for large samples remains 
+observationally expensive. Some recent works offered invaluable insights into the topographical characteristics of stars and their magnetic 
+activity, responsible for the observed variatians on their surfaces. For example, the influence of star spots can be discerned through photometric 
+data acquired from Kepler or TESS. \cite{Luger2021b} investigated the star spots features on the stellar surfaces using Gaussian Process (GPs) 
+with a \emph{physically interpretable} kernel. They showed that it is hard to put constrains on star spot properties if you only have a light curve for 
+one star, it is rather usefule though to perform the same analysis for an ensemble of stars. However, when a star has an exoplanet in orbit, 
+the spot features become observable in the transit data, providing valuable constraints on the properties of these spots 
+(whether they are dark or bright, their sizes, and their latitudes).
+
+Data-driven approaches like Gaussian processes (GPs) offer pathways to map the surfaces of exoplanet hosts through measurable disk-integrated signals. 
+In this work, we develop a Gaussian process framework to model the surfaces of exoplanet-host stars based on time-series photometry. We utilize 
+expressive kernel function from \cite{Luger2021b}. 
+
+
+
 
 %
 \section{The Data}
@@ -103,7 +139,7 @@ and $P_\star$ is the rotational period of the star.
 where $i_p$ is the planet's orbital inclination, $e$ is its eccenticity, $\psi$ is the stellar obliquity, $\omega$ is the argument of pericenter of the planet,
 $P$ is the rotational period of the planet, $t_0$ is the transit start time, and $R_p/R_\star$ is the planet to star radius ratio.
 
-We represent the GP hyperparameters as \emph{physically interesting} set of parameters $\pmb{\theta}_\bullet$ \citep{Luger2021}:
+We represent the GP hyperparameters as \emph{physically interesting} set of parameters $\pmb{\theta}_\bullet$ \citep{Luger2021b}:
 %
 \begin{linenomath}\begin{align}
         \label{eq:thetaspot}
