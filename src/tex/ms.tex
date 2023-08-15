@@ -302,6 +302,30 @@ For our initial experiment with minimal complexity, we created a synthetic light
 \emph{a short light curve}). Here, we examined two distinct sampling techniques: No-U-Turn Sampling (NUTS) using \texttt{pymc3} and Markov Chain Monte Carlo (MCMC) 
 using \texttt{emcee}. The MCMC technique exhibited a faster convergence rate of the walkers, despite the fact that it still required a significant amount of time.
 \subsection{Long light curves (multiple transits)}
+
+\begin{table}[]
+    \label{tab:LongPriors}
+    \caption{The free parameters for the synthetic data, their true values, and their priors.}
+    \begin{tabular}{lll}
+    \hline
+    Parameter                                 & True value            & Prior distribution    \\ \hline\hline
+    $i_p$                                     & $90^\circ$            & Planetary Inclination \\
+    $e$                                       & $0.0$                 & Uniform               \\
+    $P$                                       & $4.887802443$         & Period                \\
+    $t_0$                                     & $0.0$                 & Uniform               \\
+    $R_p$                                     & $0.02732$             & Logarithmic           \\
+    $m_p$                                     & $0.81 \times 10^{-3}$ & Uniform               \\ \hline
+    $i_\star$                                 & $90^\circ$            & Stellar Angle         \\
+    $\lambda$                                 & $30^\circ$            & Stellar Angle         \\
+    $P_\star$                                 & $30$                  & Period                \\ \hline
+    $r$                                       & $20^\circ$            & Uniform               \\
+    $c$                                       & $0.5$                 & Uniform               \\
+    $n$                                       & 1                     & Uniform               \\
+    $\mu_\phi$                                & 30                    & Uniform               \\
+    $\sigma_\phi$                             & 5                     & Uniform               \\ \hline
+    \end{tabular}
+    \end{table}
+
 \section{Results and Discussion}
 
 \bibliography{bib}
