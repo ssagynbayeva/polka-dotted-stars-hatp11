@@ -156,23 +156,23 @@ We represent the GP hyperparameters as \emph{physically interesting} set of para
         \pmb{\theta}_\bullet
          & =
         \left(
-        n
+        \mathbb{n}
         \,\,\,
-        c
+        \mathbb{c}
         \,\,\,
         \mu_\phi
         \,\,\,
         \sigma_\phi
         \,\,\,
-        r
+        \mathbb{r}
         \right)^\top
         \quad,
     \end{align}\end{linenomath}
 %
-where $n$ is the number of starspots, $c$ is their contrast (defined as the intensity difference between the spot and the 
+where $\mathbb{n}$ is the number of starspots, $\mathbb{c}$ is their contrast (defined as the intensity difference between the spot and the 
 background intensity, as a fraction of the background intensity),
 $\mu_\phi$ and $\sigma_\phi$ are the mode and standard deviation
-of the spot latitude distribution, respectively, and $r$ is the radius
+of the spot latitude distribution, respectively, and $\mathbb{r}$ is the radius
 of the spots.
 
 We assume that the prior over $\mathbb{f}_{true}$ follows a multivariate Gaussian distribution, with a mean vector of zeros and a covariance 
@@ -204,7 +204,7 @@ We calculate the log-likelihood function, given by:
     \quad,
 \end{align}\end{linenomath}
 %
-or, as defined in eq. 14 of \citep{Luger2021}:
+or, as defined in eq. 14 of \citep{Luger2021b}:
 %
 \begin{linenomath}\begin{align}
     \label{eq:log-likeRodrigo}
@@ -303,26 +303,38 @@ For our initial experiment with minimal complexity, we created a synthetic light
 using \texttt{emcee}. The MCMC technique exhibited a faster convergence rate of the walkers, despite the fact that it still required a significant amount of time.
 \subsection{Long light curves (multiple transits)}
 
+\begin{figure}[ht!]
+    \script{synthetic_data.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/SyntheticDataMap.pdf}
+        \includegraphics[width=\linewidth]{figures/SyntheticDataLightCurve.pdf}
+        \caption{
+            A synthetic dataset.
+        }
+        \label{fig:SyntheticData}
+    \end{centering}
+\end{figure}
+
 \begin{table}[]
     \label{tab:LongPriors}
     \caption{The free parameters for the synthetic data, their true values, and their priors.}
     \begin{tabular}{lll}
     \hline
-    Parameter                                 & True value            & Prior distribution    \\ \hline\hline
-    $i_p$                                     & $90^\circ$            & Planetary Inclination \\
-    $e$                                       & $0.0$                 & Uniform               \\
-    $P$                                       & $4.887802443$         & Period                \\
-    $t_0$                                     & $0.0$                 & Uniform               \\
-    $R_p$                                     & $0.02732$             & Logarithmic           \\
-    $m_p$                                     & $0.81 \times 10^{-3}$ & Uniform               \\ \hline
-    $i_\star$                                 & $90^\circ$            & Stellar Angle         \\
-    $\lambda$                                 & $30^\circ$            & Stellar Angle         \\
-    $P_\star$                                 & $30$                  & Period                \\ \hline
-    $r$                                       & $20^\circ$            & Uniform               \\
-    $c$                                       & $0.5$                 & Uniform               \\
-    $n$                                       & 1                     & Uniform               \\
-    $\mu_\phi$                                & 30                    & Uniform               \\
-    $\sigma_\phi$                             & 5                     & Uniform               \\ \hline
+    Parameter                                 & True value            & Prior distribution                      \\ \hline\hline
+    $i_p$                                     & $90^\circ$            & Planetary Inclination                   \\
+    $e$                                       & $0$                   & $\sim\mathcal{U}(0, 0.4)$               \\
+    $P$                                       & $4.887802443$         & Period                                  \\
+    $t_0$                                     & $0.0$                 & $\sim\mathcal{U}(-0.2, 0.2)$            \\
+    $R_p$                                     & $0.02732$             & Logarithmic                             \\
+    $m_p$                                     & $0.81 \times 10^{-3}$ & $\sim\mathcal{U}(10^{-4}, 10^{-3})$     \\ \hline
+    $i_\star$                                 & $90^\circ$            & Stellar Angle                           \\
+    $\lambda$                                 & $30^\circ$            & Stellar Angle                           \\
+    $P_\star$                                 & $30$                  & Period                                  \\ \hline
+    $\mathbb{r}$                              & $20^\circ$            & $\sim\mathcal{U}(0.1, 1)$               \\
+    $\mathbb{c}$                              & $0.5$                 & $\sim\mathcal{U}(0.01, 1)$              \\
+    $\mathbb{n}$                              & 1                     & $\sim\mathcal{U}(0, 10)$                \\
+    $\mu_\phi$                                & 30                    & $\sim\mathcal{U}(0, 80)$                \\
+    $\sigma_\phi$                             & 5                     & $\sim\mathcal{U}(1, 10)$                 \\ \hline
     \end{tabular}
     \end{table}
 
