@@ -11,7 +11,7 @@
 \begin{document}
 
 % Title
-\title{Polka-dotted Stars: Mapping the Surface of HAT-P-11}
+\title{Polka-dotted Stars: a Hierarchical Model for Mapping Stellar Surfaces Using Occultation Light Curves}
 
 % Author list
 \author[0000-0002-6650-3829]{Sabina Sagynbayeva}
@@ -68,28 +68,43 @@ the transit light curve \citep{Morris2017}.
 
 
 %
-\section{The Data}
-The data is collected by the \emph{Kepler} mission and we extracted it using
-\texttt{lightkurve}, a Python package for Kepler and TESS data analysis \citep{lightkurve}.
-%
-\begin{figure}[ht!]
-    \script{TransitFitsWithStarry.py}
-    \begin{centering}
-        \includegraphics[width=\linewidth]{figures/TransitFitsWithStarry.pdf}
-        \caption{
-            Transit fits with starry -- no GPs.
-        }
-        \label{fig:TransitFitsStarry}
-    \end{centering}
-\end{figure}
+% \section{The Data}
+% The data is collected by the \emph{Kepler} mission and we extracted it using
+% \texttt{lightkurve}, a Python package for Kepler and TESS data analysis \citep{lightkurve}.
+% %
+% \begin{figure}[ht!]
+%     \script{TransitFitsWithStarry.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/TransitFitsWithStarry.pdf}
+%         \caption{
+%             Transit fits with starry -- no GPs.
+%         }
+%         \label{fig:TransitFitsStarry}
+%     \end{centering}
+% \end{figure}
 %
 \section{Hierarchical Bayesian model}
-
+In this section, we describe our Gaussian Process (GP) model and the likelihood calculation process used to estimate the model parameters.
+The light curves obtained from telescopic observations often provide insufficient information for comprehensive photometric studies of stellar 
+magnetic fields, yet they also yield an overabundance of data for simple forward modeling. To address the first issue, we focus on capturing the essence 
+of the variability caused by the magnetic dynamo rather than solving it in great detail. The second challenge can be overcome by employing Gaussian Processes and 
+marginalizing over spherical harmonic maps. 
+We approximate the likelihood as a multidimensional Gaussian distribution characterized by a mean $$\pmb{\mu}$$ and covariance $$\pmb{B}$$ (for a comprehensive 
+derivation of the Gaussian Process, refer to \cite{Luger2021b}):
 %
-\subsection{The Model}
-In this section, we will describe our Gaussian Process (GP) model and the likelihood calculation process used to estimate the model parameters. 
-
-We solve for a large set of parameters that includes the GP hyperparameters, the star's and the planet's orbital parameters, respectively. 
+\begin{align}
+    \mathcal{L}\left(i_\star, P_\star, \mathbf{u}, \pmb{\theta}_\bullet\right) \sim
+    \mathcal{N}\Big(
+    \pmb{\mu}\left(i_\star, P_\star, \mathbf{u}, \pmb{\theta}_\bullet\right),
+    \,
+    \pmb{B}\left(i_\star, P_\star, \mathbf{u}, \pmb{\theta}_\bullet\right)
+    \Big).
+\end{align}
+%
+To infer the physical properties of the starposts, we want to obtain an underlying distribution of the physics conditioned on the provided data, 
+which is known as the posterior distribution of the model.
+% \subsection{Model for non-evolvng surfaces} \label{sec:nonevolmodel} 
+We want to solve for a large set of parameters that includes the GP hyperparameters, the star's and the planet's orbital parameters, respectively. 
 \begin{linenomath}\begin{align}
     \label{eq:largetheta}
     \pmb{\Theta}
@@ -134,7 +149,7 @@ and $P_\star$ is the rotational period of the star.
     \,\,\,
     e
     \,\,\,
-    \psi
+    \lambda
     \,\,\,
     \omega
     \,\,\,
@@ -146,7 +161,7 @@ and $P_\star$ is the rotational period of the star.
     \right)^\top
     \quad,
 \end{align}\end{linenomath}
-where $i_p$ is the planet's orbital inclination, $e$ is its eccenticity, $\psi$ is the stellar obliquity, $\omega$ is the argument of pericenter of the planet,
+where $i_p$ is the planet's orbital inclination, $e$ is its eccenticity, $\lambda$ is the projected stellar obliquity, $\omega$ is the argument of pericenter of the planet,
 $P$ is the rotational period of the planet, $t_0$ is the transit start time, and $R_p/R_\star$ is the planet to star radius ratio.
 
 We represent the GP hyperparameters as \emph{physically interesting} set of parameters $\pmb{\theta}_\bullet$ \citep{Luger2021b}:
@@ -160,9 +175,9 @@ We represent the GP hyperparameters as \emph{physically interesting} set of para
         \,\,\,
         \mathbb{c}
         \,\,\,
-        \mu_\phi
+        \mathbb{a}
         \,\,\,
-        \sigma_\phi
+        \mathbb{b}
         \,\,\,
         \mathbb{r}
         \right)^\top
@@ -170,10 +185,62 @@ We represent the GP hyperparameters as \emph{physically interesting} set of para
     \end{align}\end{linenomath}
 %
 where $\mathbb{n}$ is the number of starspots, $\mathbb{c}$ is their contrast (defined as the intensity difference between the spot and the 
-background intensity, as a fraction of the background intensity),
-$\mu_\phi$ and $\sigma_\phi$ are the mode and standard deviation
-of the spot latitude distribution, respectively, and $\mathbb{r}$ is the radius
-of the spots.
+background intensity, as a fraction of the background intensity), and $\mathbb{r}$ is the radius
+of the spots. $\mathbb{a}$ and $\mathbb{b}$ are the normalized parameters of the Beta distribution in $\cos\phi$, which is the probability density function (PDF) 
+for the latitude $\phi$ of the spots. These parameters have a one-to-one correspondence to the mode $\mu_\phi$ and standard deviation $\sigma_\phi$ of the 
+distribution in $\phi$, allowing for a concise representation of the latitudinal distribution characteristics.
+The Beta distribution in $\cos\phi$ which has hyperparameters $\alpha$ and $\beta$, and the PDF given by
+%
+\begin{align}
+    \label{eq:cosphi-pdf}
+    p \big(\cos\phi \, \big| \, \alpha, \beta \big)
+     & =
+    \dfrac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}
+    (\cos\phi)^{\alpha - 1}
+    (1 - \cos\phi)^{\beta - 1}
+    \quad,
+\end{align}
+%
+where $\Gamma$ is the Gamma function. The $\alpha$ and $\beta$ are derived from the normalized parameters 
+%
+\begin{align}
+    \label{eq:beta2gauss}
+    \alpha & = \exp\left({K_{00} + (\ln\frac{1}{2})\mathbb{a}}\right)
+    \nonumber                                                 \\
+    \beta  & = \exp\left({\ln\frac{1}{2} + (10 - \ln\frac{1}{2})\mathbb{b}}\right)
+    \quad,
+\end{align}
+%
+with inverse transform
+%
+\begin{align}
+    \label{eq:gauss2beta}
+    \mathbb{a} & \equiv \frac{\ln\alpha}{\ln\frac{1}{2}}
+    \nonumber                                             \\[0.5em]
+    \mathbb{b} & \equiv \frac{\ln\beta - \ln\frac{1}{2}}{10 -\ln\frac{1}{2}}
+\end{align}
+%
+The parameters $\mathbb{a}$ and $\mathbb{b}$ are both constrained to values between 0 and 1, making them convenient for sampling during the inference process. 
+However, $a$ and $b$ do not have a straightforward relationship with physically meaningful quantities. In many situations, it is preferable to parametrize 
+the latitude distribution using two parameters: $\mu_\phi$, which controls the central latitude, and $\sigma_\phi$, which governs the dispersion of the 
+spots' latitudes. Here, both the mean $\mu_\phi$ and variance $\sigma^2_\phi$ can be derived from the Beta distribution as
+%
+\begin{align}
+    \label{eq:mean_beta}
+    \mu_\phi
+     & =
+    \dfrac{\alpha}{\alpha+\beta}
+    \quad,
+\end{align}
+%
+\begin{align}
+    \label{eq:var_beta}
+    \sigma^2_\phi
+     & =
+    \dfrac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}
+    \quad,
+\end{align}
+%
 
 We assume that the prior over $\mathbb{f}_{true}$ follows a multivariate Gaussian distribution, with a mean vector of zeros and a covariance 
 matrix $\pmb{\Sigma}$. We use the quasi-periodic kernel to define the covariance matrix $\pmb{\Sigma}$, which is defined by \texttt{StarryProcess}.
@@ -191,20 +258,20 @@ calculate the joint posterior distribution over the hyperparameters $\Theta$ and
 %
 where $P(\Theta)$ is the prior distribution over the hyperparameters, $P(\mathbb{f}_{true} \mid \Theta)$ is the likelihood of the true function given 
 the hyperparameters, and $P(f_{obs} \mid f_{true})$ is the likelihood of the observed data given the true function.
-We calculate the log-likelihood function, given by:
+We calculate the log-likelihood function, given by (\citep{Luger2021b}):
 %
-\begin{linenomath}\begin{align}
-    \label{eq:log-likeSabina}
-    \ln p(\mathbb{f}_{obs} \mid \pmb{\Theta}) 
-    =
-    & -\frac{1}{2} (\mathbb{f}_{obs} - \pmb{\mu})^T \pmb{\Sigma}^{-1} (\mathbb{f}_{obs} - \pmb{\mu}) 
-    \nonumber       \\[0.75em]
-    & -
-    \frac{1}{2} \ln |\pmb{\Sigma}| - \frac{n}{2} \ln (2\pi)
-    \quad,
-\end{align}\end{linenomath}
-%
-or, as defined in eq. 14 of \citep{Luger2021b}:
+% \begin{linenomath}\begin{align}
+%     \label{eq:log-likeSabina}
+%     \ln p(\mathbb{f}_{obs} \mid \pmb{\Theta}) 
+%     =
+%     & -\frac{1}{2} (\mathbb{f}_{obs} - \pmb{\mu})^T \pmb{B}^{-1} (\mathbb{f}_{obs} - \pmb{\mu}) 
+%     \nonumber       \\[0.75em]
+%     & -
+%     \frac{1}{2} \ln |\pmb{B}| - \frac{n}{2} \ln (2\pi)
+%     \quad,
+% \end{align}\end{linenomath}
+% %
+% or, as defined in eq. 14 of \citep{Luger2021b}:
 %
 \begin{linenomath}\begin{align}
     \label{eq:log-likeRodrigo}
@@ -213,14 +280,14 @@ or, as defined in eq. 14 of \citep{Luger2021b}:
      & -\frac{1}{2}
     \mathbf{r}_m^\top\left(\Theta\right)
     \big[
-        \pmb{\Sigma}\left(\Theta\right)
+        \pmb{B}\left(\Theta\right)
         \big]^{-1}
     \mathbf{r}_m\left(\Theta\right)
     \nonumber       \\[0.75em]
      & -
     \frac{1}{2}
     \ln \Big|
-    \pmb{\Sigma}\left(\Theta\right)
+    \pmb{B}\left(\Theta\right)
     \Big|
     -
     \frac{K}{2}
@@ -238,30 +305,36 @@ where
 %
 is defined as the residual vector,
 %
-$\Sigma$ is the full covariance, which is defined as 
+$\pmb{B}$ is the full covariance, which is defined as 
 %
 \begin{linenomath}\begin{align}
-    \pmb{\Sigma}\left(\Theta\right)
+    \pmb{B}\left(\Theta\right)
      & \equiv
-    \pmb{\Sigma_y} + \pmb{\Sigma_d}
+    \pmb{\Lambda} + \pmb{C}
 \end{align}\end{linenomath}
 %
-where $\pmb{\Sigma_y}$ is the covariance of the distribution over spherical harmonic coefficient
-vectors $\mathbb{y}$, and $\pmb{\Sigma_d}$ is the data covariance, which is a diagonal
+where $\pmb{\Lambda}$ is the covariance of the distribution over spherical harmonic coefficient
+vectors $\mathbb{y}$, and $\pmb{C}$ is the data covariance, which is a diagonal
 matrix whose entries are the squared uncertainty $\sigma_m^2$ corresponding to each data point in the light curve.
 $| \cdots |$ denotes the determinant, and $K$ is the number of data points in
 each light curve.%
 
 For faster calculations we rewrite the likelihood function using \emph{the matrix conversion lemma}, also known as 
-Woodbury-Sherman-Morrison identity (see e.g. \cite{Hogg2020}).
+Woodbury-Sherman-Morrison identity (see, e.g., \cite{Hogg2020}), which gives an expression for the inverse $\pmb{B}^{-1}$ of the marginalized likelihood variance:
+%
+\begin{linenomath}\begin{align}
+    \label{eq:Hoggtrick}
+    \pmb{B}^{-1} = \pmb{C}^{-1} - \pmb{C}^{-1} \pmb{M} (\pmb{\mathbb{I}} 
+    & + \pmb{\Lambda} \pmb{M}^T \pmb{C}^{-1}\pmb{M})^{-1}\pmb{\Lambda} \pmb{M}^T\pmb{C}^{-1}
+\end{align}\end{linenomath}
+%
 
+% \section{Experiments}
+% In this section, we describe the experiments we did on synthetic light curves before going ahead and modeling the real data. The synthetic light curves were 
+% generated by initializing a planet and a star of similar parameters as HAT-P-11 b and HAT-P-11 have using \texttt{starry}. Then we draw \texttt{StarryProcess} 
+% samples from a prior to get spherical harmonic coefficients and consequently the simulated flux. 
 
-\section{Experiments}
-In this section, we describe the experiments we did on synthetic light curves before going ahead and modeling the real data. The synthetic light curves were 
-generated by initializing a planet and a star of similar parameters as HAT-P-11 b and HAT-P-11 have using \texttt{starry}. Then we draw \texttt{StarryProcess} 
-samples from a prior to get spherical harmonic coefficients and consequently the simulated flux. 
-
-\subsection{The issue of the normalization of light curves and units}
+\subsubsection{The issue of the normalization of light curves and units}
 Before going on discussing the experiments produced for this paper, we first need to remind the reader of a subtlety of the flux normalization when we are given
 the raw light curves from telescopes. The problem and the ways to tackle it were described in \cite{Luger2021a} and \cite{Luger2021b}. 
 
@@ -296,12 +369,40 @@ over these constant terms to be entirely uniform, thereby setting the first row 
 % as the normalization constant, or a \emph{baseline}. We explicitly solve for the baseline in our model. Note that it is not constant with time due to the transits --
 % $\pmb{m}$ drops when the planet is transitting the star.
 
+\subsection{Model for evolving surfaces}
+The model described in Section \ref{sec:nonevolmodel} would not work on stars whose surface features evolve repidly in time. Some active stars, particularly 
+Sun-like stars, exhibit surface evolution on timescales as short as a single rotation period. For example, starspots can appear and dissipate within days or weeks, 
+while chromospheric plages and coronal loops can flare up and decay on even shorter timescales. Such rapid evolution of surface structures violates 
+the fundamental assumption of a static photosphere underlying the model described in Section \ref{sec:nonevolmodel}. 
+Accounting for these time-dependent surface phenomena is crucial for accurately interpreting observations of active stars, as they can introduce significant 
+time-varying distortions in the photometric light curves. 
 
-\subsection{Short light curve}
-For our initial experiment with minimal complexity, we created a synthetic light curve that involved a single planetary transit (therefore, 
-\emph{a short light curve}). Here, we examined two distinct sampling techniques: No-U-Turn Sampling (NUTS) using \texttt{pymc3} and Markov Chain Monte Carlo (MCMC) 
-using \texttt{emcee}. The MCMC technique exhibited a faster convergence rate of the walkers, despite the fact that it still required a significant amount of time.
-\subsection{Long light curves (multiple transits)}
+Here, we describe an improved model that accounts for the surface evolution.
+
+To account for the time-varying nature of the stellar surface maps, we have extended the model described in Section \ref{sec:nonevolmodel} to allow 
+for a smooth evolution of the maps over time. We assume that the surface map transitions smoothly from one epoch to the next, with the spherical harmonic 
+coefficients linearly interpolated between consecutive map epochs. 
+
+Specifically, let $\pmb{y}_1$, $\pmb{y}_2$, $\pmb{y}_3$, ... represent the spherical harmonic coefficient vectors describing the surface maps at a 
+sequence of epochs $\pmb{t}_1$, $\pmb{t}_2$, $\pmb{t}_3$, ... For any time $\pmb{t}$ between two consecutive epochs $\pmb{t}_i$ and $\pmb{t}_{i+1}$, 
+the coefficient vector $\pmb{y(t)}$ is obtained by linear interpolation:
+\begin{linenomath}\begin{align}\label{linearinterp}
+    \pmb{y(t)} = (1 - \alpha)\pmb{y}_i + \alpha\pmb{y}_{i+1},
+\end{align}\end{linenomath}
+
+where $\alpha = (\pmb{t} - \pmb{t}_i) / (\pmb{t}_{i+1} - \pmb{t}_i)$ is the linear interpolation factor between the epochs. 
+This interpolation scheme ensures the surface map smoothly deforms from $\pmb{y}_i$ at time $\pmb{t}_i$ to $\pmb{y}_{i+1}$ at the next epoch $\pmb{t}_{i+1}$.
+
+A key aspect is that each pair of consecutive maps $\pmb{y}_i$, $\pmb{y}_{i+1}$ is interpolated independently from other map pairs. 
+Thus, $\pmb{y}_{i+1}$ does not depend on $\pmb{y}_{i-1}$, and $\pmb{y}_{i+2}$ is independent of $\pmb{y}_{i+1}$, allowing the model greater 
+flexibility to fit arbitrary time variations. The framework developed for static maps in Section \ref{sec:nonevolmodel} is applied independently 
+to each interpolated map $\pmb{y(t)}$, with the transition between maps governed by the linear interpolation above.
+
+\subsection{Experiment on a non-evolving star}
+% For our initial experiment with minimal complexity, we created a synthetic light curve that involved a single planetary transit (therefore, 
+% \emph{a short light curve}). Here, we examined two distinct sampling techniques: No-U-Turn Sampling (NUTS) using \texttt{pymc3} and Markov Chain Monte Carlo (MCMC) 
+% using \texttt{emcee}. The MCMC technique exhibited a faster convergence rate of the walkers, despite the fact that it still required a significant amount of time.
+% \subsection{Long light curves (multiple transits)}
 
 \begin{figure}[ht!]
     \script{synthetic_data.py}
@@ -311,7 +412,18 @@ using \texttt{emcee}. The MCMC technique exhibited a faster convergence rate of 
         \caption{
             A synthetic dataset.
         }
-        \label{fig:SyntheticData}
+        \label{fig:SyntheticDataLc}
+    \end{centering}
+\end{figure}
+
+\begin{figure}[ht!]
+    \script{synthetic_data.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/SyntheticDataCorner.pdf}
+        \caption{
+            A synthetic dataset corner plot.
+        }
+        \label{fig:SyntheticDataCorner}
     \end{centering}
 \end{figure}
 
