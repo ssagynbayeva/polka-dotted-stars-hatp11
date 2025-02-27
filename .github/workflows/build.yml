@@ -13,6 +13,17 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          lfs: true
+
+      - name: Set up Git LFS
+        run: |
+          git lfs install
+          # Track large files (particularly arxiv.tar.gz)
+          git lfs track "*.tar.gz"
+          git add .gitattributes
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git commit -m "Configure Git LFS for large files" || true
 
       - name: Configure Conda
         run: |
