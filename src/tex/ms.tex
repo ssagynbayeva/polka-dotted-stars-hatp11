@@ -999,7 +999,7 @@ While we cannot definitively determine whether the spot is in the northern or so
 the presence of either configuration would lead to similar physical interpretations regarding the underlying stellar dynamo processes. 
 This latitude distribution, combined with the other spot parameters discussed previously, presents compelling evidence for strong, 
 organized magnetic fields concentrated at the rotational poles of TOI-3884.
-
+%
 \begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/toi3884-active-lats.pdf}
@@ -1010,6 +1010,7 @@ organized magnetic fields concentrated at the rotational poles of TOI-3884.
     the equator reflects the inherent degeneracy in determining the hemisphere of spot locations from transit data alone.}
     \label{fig:spot_latitudes}
 \end{figure*}
+%
 
 The stellar inclination angle was found to be $i_\star = {34.8}^{+5.62}{-6.17}$ degrees, indicating that the stellar rotation 
 axis is considerably inclined from the line of sight. More notably, the sky-projected spin-orbit angle (stellar obliquity) was 
@@ -1017,7 +1018,7 @@ determined to be $\lambda\star = {80.37}^{+49.6}_{-27.5}$ degrees.
 The stellar rotation period was constrained to $P_\text{rot} = 9.07^{+0.45}_{-0.51}$ days, which places TOI-3884 among the 
 more rapidly rotating M dwarfs, consistent with its observed activity level and estimated age.
 
-We find a planetary radius of $R_p = 0.188 \pm 3\times10^{-3}$ $R_\earth$ and an orbital period of 
+We find a planetary radius of $R_p = 0.188 \pm 3\times10^{-3}$ $R_\star$ and an orbital period of 
 $P_\text{orb} = 4.5446^{+2.7\times10^{-5}}_{-2.4\times10^{-5}}$ days. 
 
 \begin{table}[]
@@ -1047,6 +1048,34 @@ $P_\text{orb} = 4.5446^{+2.7\times10^{-5}}_{-2.4\times10^{-5}}$ days.
     \label{tab:ResultsT0i3884}
     \end{tabular}
 \end{table}
+%
+Figure \ref{fig:toi3884-transits} presents the transit light curves of TOI-3884 from eight separate transit events. 
+Each panel shows the phase-folded photometric data (gray points with error bars) along with the results from our model. 
+The solid pink lines represent the model average from 100 posterior samples, while the light pink shaded regions indicate the 
+$1\sigma$ uncertainty bounds of our model. The x-axis shows time in days relative to the mid-transit point 
+(indicated by the offset values), and the y-axis displays the normalized flux.
+
+These transit light curves reveal several notable features. The slight asymmetry visible in the transit profiles provides strong 
+evidence for the stellar surface inhomogeneities due to spot-crossings. In particular, the subtle variations between different 
+transit epochs (particularly visible in transits 3, 4, and 8) are consistent with the high-latitude spot configuration we've 
+identified. Our model successfully captures the essential features of all eight transit events, including the ingress and egress 
+shapes as well as the in-transit variations. The quality of the fit across multiple epochs demonstrates the robustness of 
+our spot model and stellar orientation constraints. The consistency between the observed data and our model supports our conclusion 
+that TOI-3884 hosts a significant near-polar spot that influences the transit morphology across multiple planetary orbits.
+
+%
+\begin{figure*}[hbt!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/toi3884-model-transits.pdf}
+    \caption{Light curves for eight transit events of TOI-3884b. Each panel shows the observed photometric data from TESS (gray points 
+    with error bars) and the results of our MCMC modeling. The solid pink lines represent the model average from 100 posterior 
+    samples, while the light pink shaded regions indicate the 1$\sigma$ uncertainty bounds. The x-axis displays time in days 
+    relative to the mid-transit point (shown as offsets at the bottom of each panel), and the y-axis shows the normalized flux. 
+    The slight asymmetries and variations between transit epochs are consistent with the influence of a high-latitude stellar spot. 
+    Our model successfully reproduces the observed transit profiles across all epochs, supporting our inferred spot and stellar 
+    orientation parameters.}
+    \label{fig:toi3884-transits}
+\end{figure*}
 %
 
 \bibliography{bib}
