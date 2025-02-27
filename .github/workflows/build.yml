@@ -14,10 +14,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure Conda
+        run: |
+          # Set strict priority and verify
+          conda config --set channel_priority strict
+      
       - name: Build the article PDF
         id: build
-        uses: showyourwork/showyourwork-action@v1
+        with:
+          showyourwork-spec: git+https://github.com/showyourwork/showyourwork
+          conda-cache-number: null
+        uses: showyourwork/showyourwork-action@main
         env:
           SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}
-          OVERLEAF_EMAIL: ${{ secrets.OVERLEAF_EMAIL }}
-          OVERLEAF_PASSWORD: ${{ secrets.OVERLEAF_PASSWORD }}
+          OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}

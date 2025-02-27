@@ -11,4 +11,4 @@ jobs:
     name: Process pull request
     steps:
       - name: Process pull request
-        uses: showyourwork/showyourwork-action/process-pull-request@v1
+        uses: showyourwork/showyourwork-action/process-pull-request@main
