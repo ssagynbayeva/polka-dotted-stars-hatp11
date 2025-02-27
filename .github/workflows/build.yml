@@ -13,14 +13,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
-      - name: Set up Python and fix dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pulp==2.7.0  # Install a version with the correct method name
       
       - name: Build the article PDF
         id: build
+        with:
+          showyourwork-spec: git+https://github.com/showyourwork/showyourwork
         uses: showyourwork/showyourwork-action@v1
         env:
           SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}
