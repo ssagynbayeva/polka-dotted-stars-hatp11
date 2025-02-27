@@ -24,9 +24,8 @@ jobs:
         with:
           showyourwork-spec: git+https://github.com/showyourwork/showyourwork
           conda-cache-number: null
-        uses: showyourwork/showyourwork-action@main
-        with:
           article-cache-number: null
+        uses: showyourwork/showyourwork-action@main
         env:
           SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}
           OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
