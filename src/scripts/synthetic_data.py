@@ -29,209 +29,11 @@ import scipy.stats as ss
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import paths
 
+from StarryStarryProcess import *
+from DistributionFunctions import *
+
 starry.config.quiet = True
 np.random.seed(1)
-
-def _cho_solve(L, b):
-    return tt.slinalg.solve_upper_triangular(L.T, tt.slinalg.solve_lower_triangular(L, b))
-
-class StarryStarryProcess(object):
-    def __init__(self, sys, sp, nt, nlm):
-        self._sys = sys
-        self._sp = sp
-        self._nt = nt
-        self._nlm = nlm
-
-        self._mu = sp.mean_ylm
-        self._Lambda = sp.cov_ylm
-
-    @property
-    def nt(self):
-        return self._nt
-    @property
-    def nlm(self):
-        return self._nlm
-
-    @property
-    def sys(self):
-        return self._sys
-    @property
-    def sp(self):
-        return self._sp
-    
-    @property
-    def mu(self):
-        return self._mu
-    @property
-    def Lambda(self):
-        return self._Lambda
-    
-    @property
-    def primary(self):
-        return self.sys.primary
-    @property
-    def secondary(self):
-        return self.sys.secondaries[0]
-    
-    @property
-    def design_matrix(self):
-        return self._M
-
-    @property
-    def logl_marginal(self):
-        return self._logl_marginal
-    @property
-    def a(self):
-        return self._a
-    @property
-    def AInv_chol(self):
-        return self._AInv_chol
-
-    def _compute(self, t, flux, sigma_flux):
-        M = self.sys.design_matrix(t)[:,:-1] # We don't use any flux from the secondary, so [:, :-1]
-        self._M = M
-
-        nlm = self.nlm
-        nt = self.nt
-
-        mu = self.mu
-        Lambda = self.Lambda
-
-        # We want to enforce that the prior on the constant term in the map is
-        # completely flat, so we set the first row and column of the precision
-        # matrix to zero we do this manually here.  First we Cholesky decompose:
-        #
-        # Lambda[1:,1:] = L L^T
-        #
-        # Then, because of a quirk of theano (no gradients for `cho_solve!`,
-        # WTF), we can compute Lambda[1:,1:]^{-1} via
-        #
-        # Lambda[1:,1:]^{-1} = tt.slinalg.solve_triangular(L.T, tt.slinalg.solve_triangular(L, tt.eye(nlm-1), lower=True), lower=False)
-        #
-        # encapsulated in our _cho_solve(...) function above
-        L = tt.slinalg.cholesky(Lambda[1:,1:])
-        Lambda_inv = _cho_solve(L, tt.eye(nlm-1))
-        Lambda_inv = tt.set_subtensor(tt.zeros((nlm, nlm))[1:,1:], Lambda_inv)
-
-        sigma_flux2 = tt.square(sigma_flux)
-        MTCinv = M.T / sigma_flux2[None, :]
-        MTCinvM = tt.dot(MTCinv, M)
-
-        AInv = Lambda_inv + MTCinvM
-        AInv_chol = tt.slinalg.cholesky(AInv)
-        a = _cho_solve(AInv_chol, tt.dot(Lambda_inv, mu) + tt.dot(MTCinv, flux))
-
-        self._a = a
-        self._AInv_chol = AInv_chol
-
-        b = tt.dot(M, mu)
-        r = flux - b
-
-        Cinvr = r / sigma_flux2
-
-        rtilde = Cinvr - tt.dot(MTCinv.T, tt.slinalg.solve(AInv, tt.dot(MTCinv, r)))
-
-        # Identity:
-        # |B| = |I + M^T C^-1 M L| |C| = |L^-1 + M^T C^-1 M| |L| |C|
-        # But we want to cancel the infinite constant in L[0,0], so we ignore the first row and column of L:
-        # |B| = | A^-1 | |L[1:,1:]| |C|
-
-        logdetB = tt.sum(tt.log(sigma_flux2)) + 2*tt.sum(tt.log(tt.diag(AInv_chol))) + 2*tt.sum(tt.log(tt.diag(L)))
-
-        # (nt-1) because we have cancelled one dimension due to the flat prior on the [0,0] constant term.
-        logl = -0.5*tt.dot(r, rtilde) - 0.5*logdetB - 0.5*(nt-1)*tt.log(2*np.pi)
-        self._logl_marginal = logl
-
-    def marginal_likelihood(self, t, flux, sigma_flux):
-        self._compute(t, flux, sigma_flux)
-        return self.logl_marginal
-    
-    def sample_ylm_conditional(self, t, flux, sigma_flux, size=1, rng=None):
-        if rng is None:
-            rng = RandomStream(seed=np.random.randint(1<<32))
-
-        nylm = self.nlm
-
-        self._compute(t, flux, sigma_flux)
-        return self.a[None,:] + tt.slinalg.solve_upper_triangular(self.AInv_chol.T, rng.normal(size=(nylm, size))).T
-
-def Inclination(name, testval=30):
-    """
-    An isotropic distribution for inclination angles (in degrees).
-    
-    """
-    def logp(x):
-        return tt.log(np.pi / 180 * tt.sin(x * np.pi / 180))
-
-    def random(*args, **kwargs):
-        return tt.arccos(pm.Uniform.dist(0, 1).random(*args, **kwargs)) * 180 / np.pi
-
-    return pm.DensityDist(
-        name,
-        logp,
-        random=random,
-        initval=testval,
-    )
-
-
-def Angle(*args, **kwargs):
-    """
-    A uniform distribution for angles in [-180, 180).
-    
-    """
-    if kwargs.get("testval", None) is not None:
-        kwargs["testval"] *= np.pi / 180
-    return 180 / np.pi * pmx.Angle(*args, **kwargs)
-
-def ori_xyz(name, testval):
-    stellar_ori_x = pm.Normal(name+'_ori_x', mu=0, sigma=1, testval=testval)
-    stellar_ori_y = pm.Normal(name+'_ori_y', mu=0, sigma=1, testval=testval)
-    stellar_ori_z = pm.Normal(name+'_ori_z', mu=0, sigma=1, testval=testval)
-
-    return stellar_ori_x, stellar_ori_y, stellar_ori_z
-
-def Planet_Inc(name, *args, **kwargs):
-    bmax = params[name].get('bmax')
-    b = pm.Uniform('b', -bmax, bmax)
-    planet_inc = pm.Deterministic(name, 180.0/np.pi*np.arccos(b))
-    
-    return planet_inc
-
-def Stellar_Ang(name, *args, **kwargs):
-    if kwargs.get("testval", None) is not None:
-        trueval = kwargs["testval"]
-    stellar_ori_x, stellar_ori_y, stellar_ori_z = ori_xyz(name, trueval)
-
-    if "inc" in name:
-        return pm.Deterministic(name, 180.0/np.pi*tt.arccos(stellar_ori_z / tt.sqrt(tt.square(stellar_ori_x) + tt.square(stellar_ori_y) + tt.square(stellar_ori_z))))
-    
-    elif "obl" in name:
-        return pm.Deterministic(name, 180.0/np.pi*tt.arctan2(stellar_ori_y, stellar_ori_x))
-
-def Period(name, *args, **kwargs):
-    Ttotal = t[-1] - t[0]
-    frac_bounds = params[name].get('frac_bounds')
-
-    if kwargs.get("testval", None) is not None:
-        trueval = kwargs["testval"]
-
-    def logp(trueval, frac_bounds):
-        return pm.Uniform(name+'logp',tt.log(trueval) + np.log1p(-frac_bounds), tt.log(trueval) + np.log1p(frac_bounds))
-
-    period = pm.Deterministic(name, tt.exp(logp(trueval, frac_bounds)))
-
-    return period
-
-def Logarithmic(name, *args, **kwargs):
-    if kwargs.get("testval", None) is not None:
-        trueval = kwargs["testval"]
-    log_rp = pm.Uniform(name+'log', tt.log(trueval/2), tt.log(2*trueval))
-    rp = pm.Deterministic(name, tt.exp(log_rp))
-
-    return rp
-
-# Shorthand for the usual Uniform distribution
-Uniform = pm.Uniform
 
 def generate(t, params, nt, error=1e-4, visualize=True):
     """
@@ -388,3 +190,83 @@ ax.set_ylabel("flux [relative]", fontsize=20)
 ax.set_xlabel("time [days]", fontsize=20)
 ax.legend(fontsize=16);
 plt.savefig(paths.figures / "SyntheticDataLightCurve.pdf", bbox_inches="tight", dpi=300)
+
+
+# Set some free params 
+p = dict(params)
+
+p['star.prot']['free'] = True
+p['star.obl']['free'] = True
+p['star.inc']['free'] = True
+
+p['planet.porb']['free'] = True
+p['planet.t0']['free'] = True
+p['planet.r']['free'] = True
+p['planet.inc']['free'] = True
+
+p['gp.c']['free'] = True
+p['gp.mu']['free'] = True
+p['gp.sigma']['free'] = True
+p['gp.r']['free'] = True
+p['gp.n']['free'] = True
+
+free = [x for x in p.keys() if p[x].get("free", False)]
+
+samples_fromfile = az.from_netcdf(paths.data / "SSP-organized-planet-star-gp.nc")
+samples = samples_fromfile.posterior.to_dataframe()
+samples = np.array(samples).T
+labels = samples_fromfile.posterior.to_dataframe().columns
+# Find the indices of the elements in "labels" that are also present in "free"
+indices_to_keep = [i for i, label in enumerate(labels) if label in free]
+
+# Use the indices to filter the rows in "samples"
+filtered_samples = samples[indices_to_keep]
+
+free = labels[indices_to_keep]
+# saving the true values in a list
+truths=[params[x]['truth'] for x in free]
+
+import pandas as pd
+import seaborn as sns
+df = pd.DataFrame(filtered_samples.T, columns=free)
+sns.set(style='ticks')
+
+# Create the pair grid
+g = sns.PairGrid(df, diag_sharey=False)
+
+# Map the histograms to the diagonal
+g.map_diag(sns.histplot, kde=True, color='orchid')
+
+# Map the 2D contour plots to the lower triangle
+g.map_lower(sns.kdeplot, cmap='plasma', levels=6, fill=True)
+
+# Custom function to remove upper triangle
+def remove_upper(*args, **kwargs):
+    plt.gca().axis('off')
+
+# Remove the scatter plots and empty axes in the upper triangle
+g.map_upper(remove_upper)
+
+for i, var in enumerate(free):
+    truth = params[var]['truth']
+    g.axes[i, i].axvline(truth, color='k', linestyle='-')
+    g.axes[i, i].axhline(truth, color='k', linestyle='-')
+
+    std = np.std(df[var])
+    mean = np.mean(df[var])
+    sigma_plus = mean + 2 * std
+    sigma_minus = mean - 2 * std
+    g.axes[i, i].axvline(sigma_plus, color='k', linestyle='--')
+    g.axes[i, i].axvline(sigma_minus, color='k', linestyle='--')
+
+# Add truth values as lines to the contour plots
+for i, y_var in enumerate(free):
+    for j, x_var in enumerate(free):
+        if j < i:
+            truth_x = params[x_var]['truth']
+            truth_y = params[y_var]['truth']
+            g.axes[i, j].axvline(truth_x, color='k', linestyle='-')
+            g.axes[i, j].axhline(truth_y, color='k', linestyle='-')
+
+plt.savefig(paths.figures / "SyntheticDataCorner.pdf", bbox_inches="tight", dpi=300)
+
