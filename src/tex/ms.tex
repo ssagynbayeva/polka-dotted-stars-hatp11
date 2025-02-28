@@ -951,8 +951,7 @@ of PT in \texttt{ptemcee} \citep{ptemcee}. \texttt{ptemcee} handles these exchan
 
 \begin{equation}
     \label{eq:ptemcee}
-    P_{\rm exchange} = \min\left(1, \exp\left[\left(\frac{1}{T_i} - \frac{1}{T_j}\right)\right.\right.\\
-    \left.\left.\left(\ln p(\theta_j|\mathcal{D}) - \ln p(\theta_i|\mathcal{D})\right)\right]\right)
+    P_{\rm exchange} = \min\left(1, \exp\left[\left(\frac{1}{T_i} - \frac{1}{T_j}\right)\right.\right.\left.\left.\left(\ln p(\theta_j|\mathcal{D}) - \ln p(\theta_i|\mathcal{D})\right)\right]\right)
 \end{equation}
 
 where $T_i$ and $T_j$ are the temperatures of adjacent chains, and $\theta_i$ and $\theta_j$ are their respective states.
@@ -989,8 +988,8 @@ observations. Collectively, these parameters paint a picture of TOI-3884 as an a
     \label{fig:spot_parameters}
 \end{figure*}
 
-Our analysis of the spot latitude distribution is illustrated in Figure \ref{fig:spot_latitude}. This figure shows the posterior 
-probability distribution of spot latitudes derived from our MCMC analysis. The black line represents the mean distribution, 
+Our analysis of the spot latitude distribution is illustrated in Figure \ref{fig:spot_latitudes}. This figure shows the posterior 
+probability distribution of spot latitudes derived from the model. The black line represents the mean distribution, 
 while the individual pink lines show a subset of 1000 posterior samples, highlighting the inherent variability in our constraints. 
 The distribution exhibits two prominent peaks centered at approximately $-75^{\circ}$ and $+75^{\circ}$ latitude, 
 with negligible probability near the equator.
@@ -1012,7 +1011,7 @@ organized magnetic fields concentrated at the rotational poles of TOI-3884.
 \end{figure*}
 %
 
-The stellar inclination angle was found to be $i_\star = {34.8}^{+5.62}{-6.17}$ degrees, indicating that the stellar rotation 
+The stellar inclination angle was found to be $i_\star = {34.8}^{+5.62}_{-6.17}$ degrees, indicating that the stellar rotation 
 axis is considerably inclined from the line of sight. More notably, the sky-projected spin-orbit angle (stellar obliquity) was 
 determined to be $\lambda\star = {80.37}^{+49.6}_{-27.5}$ degrees.
 The stellar rotation period was constrained to $P_\text{rot} = 9.07^{+0.45}_{-0.51}$ days, which places TOI-3884 among the 
@@ -1028,23 +1027,23 @@ $P_\text{orb} = 4.5446^{+2.7\times10^{-5}}_{-2.4\times10^{-5}}$ days.
     \begin{tabular}{llll}
     \hline
     Parameter                                 & Inferred value    \\ \hline\hline
-    $i_p (^\circ)$                                     & $90.17^{+0.52}_{-0.78}$                   \\
+    $i_p (^\circ)$                            & $90.17^{+0.52}_{-0.78}$                   \\
     $e$                                       & $0.14^{+0.19}_{-0.07}$                     \\
-    $P (\rm days)$                                       & $4.5446^{+2.7\times10^{-5}}_{-2.4\times10^{-5}}$                       \\
-    $t_0 (\rm days)$                                     & $2556.51\pm 4\times 10^{-4}$                       \\
+    $P (\rm days)$                            & $4.5446^{+2.7\times10^{-5}}_{-2.4\times10^{-5}}$                       \\
+    $t_0 (\rm days)$                          & $2556.51\pm 4\times 10^{-4}$                       \\
     $R_p / R_\star$                           & $0.188 \pm 3\times10^{-3}$                         \\ 
     $u_1$                                     & $0.14^{+0.15}_{-0.07}$                         \\ 
     $u_2$                                     & $0.09 \pm 0.06$                         \\ 
-    $v\sin i (\rm kms^{-1})$                                & $1.69^{+0.11}_{-0.09}$                       \\ \hline
-    $i_\star (^\circ)$                                 & $34.8^{+5.62}_{-6.17}$                      \\
-    $\lambda_\star (^\circ)$                           & $80.37^{+49.6}_{-27.5}$                           \\
-    $P_\star (\rm days)$                                 & $9.07^{+0.45}_{-0.51}$                       \\ 
-    $\rho_\star (\rm gcm^{-3})$                              & $15.18^{+1.98}_{-1.75}$                      \\ \hline
-    $\mathbb{r} (^\circ)$                              & $26.77^{+9.7}_{-8.7}$                           \\
+    $v\sin i (\rm kms^{-1})$                  & $1.69^{+0.11}_{-0.09}$                       \\ \hline
+    $i_\star (^\circ)$                        & $34.8^{+5.62}_{-6.17}$                      \\
+    $\lambda_\star (^\circ)$                  & $80.37^{+49.6}_{-27.5}$                           \\
+    $P_\star (\rm days)$                      & $9.07^{+0.45}_{-0.51}$                       \\ 
+    $\rho_\star (\rm gcm^{-3})$               & $15.18^{+1.98}_{-1.75}$                      \\ \hline
+    $\mathbb{r} (^\circ)$                     & $26.77^{+9.7}_{-8.7}$                           \\
     $\mathbb{c}$                              & $0.049^{+0.028}_{-0.013}$                               \\
     $\mathbb{n}$                              & $7.58^{+1.39}_{-2.85}$                               \\
-    $\mu_\phi (^\circ)$                                & $75.24^{+2.67}_{-4.11}$                               \\
-    $\sigma^2_\phi (^\circ)$                           & $12.99^{+4.91}_{-5.08}$                      \\ \hline
+    $\mu_\phi (^\circ)$                       & $75.24^{+2.67}_{-4.11}$                               \\
+    $\sigma^2_\phi (^\circ)$                  & $12.99^{+4.91}_{-5.08}$                      \\ \hline
     \label{tab:ResultsT0i3884}
     \end{tabular}
 \end{table}
@@ -1078,6 +1077,57 @@ that TOI-3884 hosts a significant near-polar spot that influences the transit mo
 \end{figure*}
 %
 
+Figure \ref{fig:toi3884-moll} presents a visualization of the stellar surface of TOI-3884 with the modeled spot 
+distributions from nine different posterior samples. Each panel displays a Mollweide projection of the entire stellar surface, 
+with the color scale indicating intensity variations. The dark purple regions represent cooler areas corresponding to stellar 
+spots, while the yellow-orange regions depict the warmer, unspotted photosphere.
+These visualizations clearly demonstrate the high-latitude spot configurations. Across the different posterior samples, 
+we consistently observe spot concentrations near the poles, though with some variation in the exact morphology and distribution. 
+The variations between panels illustrate the range of possible spot configurations that are consistent with our transit 
+observations. Despite these differences, the predominance of high-latitude spots is a robust feature across all samples, 
+supporting the conclusion that TOI-3884 hosts significant near-polar magnetic activity. 
+The consistency of these high-latitude features across different posterior samples demonstrates that this result is 
+not sensitive to the specific parameter values within our model's posterior distribution.
+These surface maps provide a direct visualization of the spot configuration that gives rise to the transit light curve 
+asymmetries shown in Figure \ref{fig:toi3884-transits}, illustrating the three-dimensional 
+geometry of the TOI-3884 system.
+
+Similarly, Figure \ref{fig:toi3884-traj} shows nine representative views from our posterior samples. Each panel displays the stellar disk as it 
+appears from Earth, with the temperature variation across the surface indicated by the color gradient. The black dots trace 
+the path of TOI-3884b across the stellar disk during transit, clearly illustrating how the planet's trajectory intersects 
+with surface features. As the planet crosses regions of different brightness on the stellar surface, it blocks varying amounts 
+of light, creating the subtle but distinctive signatures we observed in the data. The consistent presence of near-polar spots 
+across different posterior samples, combined with the specific transit geometry, provides strong evidence for our inferred 
+low stellar inclination and high stellar obliquity. These results illustrate the three-dimensional relationship 
+between the planet's orbital plane and the star's rotation axis, supporting the significant spin-orbit misalignment in the 
+TOI-3884 system.
+%
+\begin{figure*}[hbt!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/toi3884-samples-moll.pdf}
+    \caption{Mollweide projections of the stellar surface of TOI-3884 showing spot distributions from nine representative 
+    posterior samples. The majority of samples exhibit prominent high-latitude spot concentrations, with some variation in 
+    the exact morphology and distribution. This consistent pattern of near-polar spots across different posterior samples 
+    provides strong support for our inferred high-latitude magnetic activity. 
+    These surface configurations produce the transit light curve modulations observed in Figure~\ref{fig:toi3884-transits}.}
+    \label{fig:toi3884-moll}
+\end{figure*}
+%
+
+%
+\begin{figure*}[hbt!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/toi3884-samples-traj.pdf}
+    \caption{Observer's view of TOI-3884 during transit events from nine representative posterior samples. 
+    Each panel shows the stellar disk as viewed from Earth, with dark purple regions indicating cooler spots and 
+    yellow-orange areas representing the warmer photosphere. Black dots trace the path of TOI-3884b across the stellar disk 
+    during transit. The consistent presence of high-latitude spots intersecting or near the planet's trajectory explains the 
+    asymmetries observed in the transit light curves. This visualization demonstrates how the combination of stellar inclination 
+    ($i_\star = {34.8}^{+5.62}_{-6.17}$ degrees), spot distribution, and planetary orbital geometry produces the distinctive
+    transit signatures in the TESS data.}
+    \label{fig:toi3884-traj}
+\end{figure*}
+%
 \bibliography{bib}
 
 \end{document}
