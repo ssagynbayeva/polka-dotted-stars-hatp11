@@ -25,6 +25,10 @@
 \affiliation{\sbu}
 \affiliation{\cca}
 
+\author[0000-0003-2528-3409]{Brett M. Morris}
+% \email{wfarr@flatironinstitute.org}
+\affiliation{Space Telescope Science Institute, 3700 San Martin Dr, Baltimore, MD 21218, USA}
+
 \author[0000-0002-0296-3826]{Rodrigo Luger}
 % \email{rodluger@gmail.com}
 \affiliation{\cca}
@@ -1128,6 +1132,108 @@ TOI-3884 system.
     \label{fig:toi3884-traj}
 \end{figure*}
 %
-\bibliography{bib}
 
+\section{Discussion}
+
+Our analysis demonstrates that transit light curves can provide meaningful constraints on stellar surface features and 
+three-dimensional geometry, even when using single-band photometric data. The model successfully recovers a consistent spot 
+distribution across multiple posterior samples (see Section \ref{sec:experiment1}), characterized predominantly by high-latitude 
+features in the case of TOI-3884 (see Section \ref{sec:toi3884}). 
+This result is robust across our MCMC exploration and explains the observed transit light curve morphologies. 
+However, there are several important considerations regarding the model's limitations and strengths.
+
+\subsection{Parameter Degeneracies and Uncertainty}
+
+While our model accurately reproduces the observed transit light curves, the posterior distributions for several key 
+parameters remain relatively wide. This breadth reflects inherent degeneracies in transit modeling that persist even 
+with our approach described in Section \ref{sec:model}. For instance, the stellar inclination angle 
+($i_\star$) and sky-projected spin-orbit angle 
+($\lambda_\star$) have substantial uncertainties. These uncertainties stem 
+from multiple parameter combinations that can produce similar transit signatures, particularly regarding the precise spot 
+locations and their contrast with the surrounding photosphere.
+
+The degeneracy between northern and southern hemisphere spot locations is particularly evident. As shown in Figure 
+\ref{fig:spot_latitude} and also discussed in Section \ref{sec:model}, we cannot definitively distinguish 
+between spots located at positive or negative latitudes using 
+transit data alone. This ambiguity is fundamental to the transit method, as the planet's path across the stellar disk 
+cannot discriminate between spots above or below its trajectory when they are symmetric about the transit chord.
+
+Despite these degeneracies, our flexible spot model recovers a consistent overall picture of TOI-3884's surface features. 
+The near-polar spot configuration emerges as a robust result regardless of which specific parameter combination within our 
+posterior is considered. This consistency suggests that while individual parameter values may be uncertain, the general 
+surface feature distribution is well-constrained by the data.
+
+\subsection{Recovery of 3D Information from Photometry Alone}
+
+A significant achievement of our approach is the recovery of three-dimensional information about the star-planet system using 
+only single-band photometry. Previous studies typically require complementary data sources such as Doppler tomography or 
+spectropolarimetric observations to constrain the three-dimensional geometry of transiting systems. 
+Our work demonstrates that with appropriate modeling, transit light curves themselves contain significant information about 
+the stellar rotation axis and surface feature distribution.
+
+Our derived stellar projected rotational velocity ($v\sin i_\star = {5.2}^{+0.7}_{-0.8}$ km/s) is in good agreement 
+with spectroscopically measured values for TOI-3884 in \cite{Libby-Roberts2023}, despite being derived s
+olely from photometric data. This agreement provides strong independent validation of our geometric model 
+and suggests that photometric analyses can serve as useful complements to spectroscopic methods for determining stellar 
+rotational properties.
+
+Our results highlight important limitations in previous spot modeling approaches. For instance, 
+the models employed before assumed either a single spot or a fixed number of discrete spots 
+\citep{Morris2018,Oshagh2013,Libby-Roberts2023,Beky2014}. While computationally efficient, 
+such strict assumptions artificially reduce uncertainty about the stellar orientation and spot configuration. 
+By imposing strong priors on the number and morphology of spots, these models may underestimate the true parameter 
+uncertainties and potentially miss important surface features.
+Our Gaussian process-based approach allows for more flexible spot distributions with varying complexity, 
+providing a more realistic assessment of the constraints that can be derived from transit data. 
+The wider posterior distributions in our analysis more accurately reflect the genuine uncertainties inherent in 
+inferring stellar surface features from transit light curves alone. 
+
+Figure \ref{fig:toi3884-compare} presents the posterior distributions and correlations for selected parameters in our model of 
+TOI-3884. The parameters shown include the planet's inclination ($i_p$), orbital eccentricity ($e$), 
+stellar inclination ($i_\star$), sky-projected spin-orbit angle ($\lambda_\star$), planet-to-star radius ratio ($R_p/R_\star$), 
+projected stellar rotational velocity ($v\sin i$), and stellar density ($\rho_\star$).
+The red shaded regions and vertical dashed lines indicate independent constraints from radial velocity measurements reported by 
+\cite{Libby-Roberts2023}. These RV-derived constraints provide important independent validation for our photometry-based model. 
+Our photometrically derived $v\sin i$ value of approximately 2.5 km/s aligns within 1$\sigma$-well with the spectroscopic 
+measurement, 
+despite being derived solely from transit light curves. This agreement strongly reinforces the power of our approach to 
+extract detailed stellar and orbital parameters using only photometric data.
+We show that with single-band photometry alone, we can constrain parameters traditionally measured through spectroscopic techniques. 
+The ability to recover $v\sin i$ and place meaningful constraints on the spin-orbit alignment without recourse to 
+spectroscopy represents a significant methodological advancement, potentially enabling detailed characterization of 
+systems for which high-resolution spectroscopy is challenging.
+
+\begin{figure*}[hbt!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/toi3884-libby-compare.pdf}
+    \caption{The corner plot for planet's inclination ($i_p$), orbital eccentricity ($e$), 
+    stellar inclination ($i_\star$), sky-projected spin-orbit angle ($\lambda_\star$), planet-to-star radius ratio ($R_p/R_\star$), 
+    projected stellar rotational velocity ($v\sin i$), and stellar density ($\rho_\star$). The red shaded regions and vertical dashed lines indicate independent constraints from radial velocity measurements reported by 
+    \cite{Libby-Roberts2023}.}
+    \label{fig:toi3884-compare}
+\end{figure*}
+%
+\subsection{Implications for M Dwarf Magnetic Activity}
+
+The high-latitude spot configuration we detect aligns with theoretical expectations for rapidly rotating low-mass stars like 
+TOI-3884. Magnetohydrodynamic simulations predict that Coriolis forces in such stars should preferentially channel 
+magnetic flux emergence toward the rotational poles \citep{Yadav2015,Almenara2022}. Our results provide observational support for these theoretical predictions, 
+demonstrating that transit modeling can be a valuable tool for studying stellar magnetic activity patterns.
+The combination of a moderately inclined stellar rotation axis and significant high-latitude spots also helps explain why 
+previous analyses of TOI-3884 detected relatively low photometric variability despite evidence for active chromospheric emission. 
+High-latitude spots maintain a relatively constant projected area as the star rotates when viewed at moderate inclinations, 
+resulting in reduced rotational modulation while still affecting transit profiles when intersected by the planet's path.
+
+\subsection{Future Directions}
+
+While our analysis demonstrates the power of photometric transit modeling, the remaining degeneracies point 
+to the value of multi-wavelength observations for future studies. Transit observations at different wavelengths would 
+provide additional constraints on spot temperatures and coverage, potentially breaking some of the degeneracies in our current 
+model. Similarly, combining our photometric approach with spectroscopic measurements would enable more precise determinations 
+of the three-dimensional system geometry.
+For TOI-3884 specifically, continued monitoring of transit events could reveal temporal evolution of the spot distribution, 
+providing insights into the magnetic activity cycle of this M dwarf. Such observations would be valuable for understanding 
+how stellar activity might impact the planetary environment and potential habitability of planets orbiting active M dwarfs.
+
+\bibliography{bib}
 \end{document}
