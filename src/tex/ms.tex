@@ -19,6 +19,7 @@
 \email{sabina.sagynbayeva@stonybrook.edu}
 \affiliation{\sbu}
 \affiliation{\cca}
+\affiliation{Kavli Institute for Theoretical Physics, University of California, Santa Barbara, CA 93106, USA}
 
 \author[0000-0003-1540-8562]{Will M. Farr}
 % \email{wfarr@flatironinstitute.org}
@@ -35,106 +36,92 @@
 
 % Abstract with filler text
 \begin{abstract}
-   
+    We present \texttt{StarryStarryProcess}, a novel hierarchical Bayesian framework for mapping stellar surfaces using exoplanet transit light curves. 
+    While previous methods relied solely on stellar rotational light curves -— which contain limited information about spot properties -- our approach leverages 
+    planetary transits as probes of stellar surfaces. When a planet crosses a spot during transit, it creates a distinctive bump in the light curve that 
+    directly reveals spot properties. Our model integrates planetary transit modeling with stellar variability analysis by combining 
+    the spherical harmonic representation from \texttt{starry}, the probabilistic approach of \texttt{StarryProcess}, and a comprehensive 
+    transit model that accounts for spot-crossing events. We demonstrate through synthetic data experiments that our model successfully recovers spot distributions, 
+    stellar orientation, and spot physical properties. We extend the framework to handle evolving stellar surfaces through time-dependent modeling. 
+    Applying our method to TESS observations of TOI-3884, we find evidence for high-latitude spot concentrations and significant spin-orbit misalignment. The transit-based 
+    approach overcomes fundamental limitations of previous models by providing constraints on spot properties that would remain hidden in the null space of 
+    rotational light curves alone. This methodology enables more accurate exoplanet characterization by disentangling stellar activity from planetary signals 
+    while simultaneously providing insights into stellar magnetic activity patterns.
 \end{abstract}
 
 % Main body with filler text
 \section{Introduction}
 \label{sec:intro}
-The quest to unravel the mysteries of distant planetary systems has led to a fast-evolving field of research, where exoplanet studies are at the forefront of 
-astronomical investigations. The detection of atmospheres on Earth analogs using transmission spectroscopy is a challenging task due to the confounding 
-effects of stellar contamination (see, e.g., \cite{Ducrot2018, Morris2018}). Stellar magnetic activity, particularly in the form of starspots, can significantly 
-influence the observed transmission spectra, making it difficult to disentangle planetary atmospheric signals from those originating from the host star. 
-Starspots exhibit variations in both time and wavelength, mainly due to stellar rotation. As a result, the identification of starspots has the potential to 
-complicate the analysis and interpretation of exoplanet observations. 
+The detection of atmospheres on Earth analogs using transmission spectroscopy is challenging due to stellar 
+contamination effects \citep{Ducrot2018, Morris2018}. Stellar magnetic activity, particularly starspots, significantly 
+influences observed transmission spectra, making it difficult to distinguish planetary atmospheric signals from stellar ones. 
+Starspots exhibit variations in both time and wavelength primarily due to stellar rotation, potentially complicating the analysis 
+and interpretation of exoplanet observations.
 
-Therefore, characterizing the behavior of stellar surface features that arise due to magnetic activity like starspots and flares is instrumental for improving 
-planet detection efficiency in photometric, spectral, and radial velocity studies. Understanding starspots is fundamental and imminent for the ongoing 
-space mission JWST, which will characterize tens to hundreds of exoplanet atmospheres around stars with strong variability. In fact, recent JWST 
-results (\cite{Lim2023}) on the atmosphere of TRAPPIST-1b showed that accurate measurements have so far been substantially stymied by stellar contamination, 
-and we need more accurate models to account for it. To fully capitalize on the unprecedented capabilities of JWST and accurately interpret the obtained 
-transmission spectra, it is crucial to develop a comprehensive understanding of stellar magnetic activity and its impact on the observed signals. 
+Therefore, characterizing stellar surface features arising from magnetic activity—-such as starspots and flares—-is crucial for 
+improving planet detection efficiency across photometric, spectral, and radial velocity studies. Understanding starspots is 
+especially important for the JWST mission, which aims to characterize numerous exoplanet atmospheres around stars with strong 
+variability. Recent JWST results on TRAPPIST-1b \citep{Lim2023} demonstrated that accurate measurements have been substantially 
+hindered by stellar contamination, highlighting the need for more precise models to account for these effects. To fully leverage 
+JWST's capabilities and accurately interpret transmission spectra, we must develop a comprehensive understanding of stellar 
+magnetic activity and its impact on observed signals.
 
-Moreover, characterizing the surfaces of exoplanet-host stars is crucial for understanding the environments and evolution of their planetary 
-systems. For example, the Sun's magnetic field drives the star's activity cycles, the heating of its outer atmosphere and the solar wind,
-which affects the Earth's magnetosphere and biosphere \citep{Babcock1961,Charbonneau2014}. 
-Therefore, constructing a catalogue of the magnetic properties of other stars similar to the Sun would support the quest towards understanding 
-the population of detected exoplanets and the development of a highly generalizable theory on stellar magnetic dynamo.
+Recent works have provided valuable insights into the topographical characteristics of stars and their magnetic activity. 
+For example, starspot influence can be observed through photometric data from Kepler or TESS. The \texttt{starry} code 
+\citep{Luger2019} offers an efficient method for computing light curves of stars and planets using a spherical harmonic 
+framework to represent surface brightness distribution, enabling fast and accurate calculations of rotational light curves 
+and occultations. Building upon \texttt{starry}, \citet{Luger2021b} introduced \texttt{StarryProcess}, a probabilistic model 
+for stellar variability that treats spot distribution as a Gaussian process in spherical harmonic space, allowing efficient 
+modeling of stellar variability over extended time scales.
 
-The reverse statement is also true. The exisiting popultion of exoplanets along with their orbital parameters can help characterize their host-stars
-in terms of their surface magnetic activity. Stellar surface features like spots and flares impact observables in planet-detection research including photometric 
-variability, spectral line profiles, and radial velocity shifts. However, directly resolving stellar surfaces remains challenging. 
-While high-resolution spectroscopy provides the most robust method of determining stellar parameters, obtaining such data for large samples remains 
-observationally expensive, but photometric observations can come to rescue. Some recent works offered invaluable insights into the topographical 
-characteristics of stars and their magnetic activity, responsible for the observed variatians on their surfaces. For example, the influence of starspots 
-can be seen through photometric data acquired from Kepler or TESS. \cite{Luger2021b} investigated the star spots features on the stellar surfaces using 
-Gaussian Process (GPs) with a \emph{physically interpretable} kernel. They argue that the complex degeneracies make it impossible to determine the 
-precise configuration of starspots and other features on a star's surface solely based on its rotational light curve, but we don't have to be 
-concerned with the specific characteristics of an individual spot, as such information would have limited practical utility. Instead, we often consider 
-(either explicitly or implicitly) the properties of a star spot as a sample drawn from an underlying parent distribution that governs aspects like the average 
-and dispersion of spot radii. The parameters that control this distribution are the ones that can be predicted through physical principles, 
-making them the primary focus of our interest. 
+With \texttt{StarryProcess}, \citet{Luger2021b} investigated stellar spot features using Gaussian Processes with 
+a physically interpretable kernel. They argued that complex degeneracies make it impossible to determine the precise 
+configuration of starspots solely from rotational light curves. Instead, they suggested focusing on the statistical properties 
+of spot distributions rather than individual spot characteristics. However, they also demonstrated that constraining starspot 
+properties from a single star's light curve is difficult; an ensemble analysis of multiple stars is more informative.
 
-\cite{Luger2021b} also showed that it is hard to put constrains on starspot properties if you only have a light curve for 
-one star, it is rather usefule though to perform the same analysis for an ensemble of stars. However, photometric light curves capturing planetary transits encode 
-a wealth of information about the stellar surface and the starspots present on it. Transits, during which the planet occults different regions of 
-the stellar disk, provide a unique opportunity to probe the physical characteristics of starspots. Exoplanet host stars are \textit{uniquely} suited 
-for photometric studies of starspot properties: spot features of observed exoplanet host stars in transit can provide valuable 
-constraints on spot properties (see Figure \ref{fig:cartoon}) -- brightness, size, and latitude -- while fitting a single light curve for a star 
-with no observed transit introduces too many degeneracies.
+While previous models like \texttt{StarryProcess} relied solely on stellar rotational light curves—which contain limited 
+information about spot properties—our approach introduces a critical advancement: we leverage planetary transits as probes of 
+stellar surfaces. Exoplanet host stars are \textit{uniquely suited} for photometric studies of starspot properties because:
+(1) Planetary transits effectively scan different regions of the stellar disk;
+(2) Transit light curves contain encoded information about the stellar surface and starspots;
+(3) Spot-crossing events during transits provide direct constraints on spot brightness, size, and latitude.
 
-In this work, we utilize two powerful computational tools, \texttt{starry} and \texttt{StarryProcess}, to model the light curves of spotted stars and 
-their transiting exoplanets. We then extend these models to create a comprehensive framework that combines both stellar variability and planetary transits.
+This transit-based approach overcomes the fundamental limitation of previous models that analyzed stellar light curves alone, 
+where too many degeneracies exist to precisely characterize spots. As illustrated in Figure \ref{fig:cartoon}, when a planet 
+crosses a spot during transit, it creates a distinctive bump in the light curve that directly reveals spot properties.
 
-The \texttt{starry} code, developed by \cite{Luger2019}, provides an efficient method for computing light curves of stars and planets. 
-It uses a spherical harmonic framework to represent the surface brightness distribution of celestial bodies, allowing for fast and accurate 
-calculations of rotational light curves and occultations. \texttt{starry} is particularly useful for modeling the effects of stellar spots 
-and planetary transits, as it can handle complex surface brightness patterns and compute their resulting light curves with high precision.
+In this work, we develop \texttt{StarryStarryProcess}, a novel framework that integrates planetary transit modeling with 
+stellar variability analysis. Our model combines:
+\begin{itemize}
+    \item The spherical harmonic representation from \texttt{starry}
+    \item The probabilistic approach of \texttt{StarryProcess}
+    \item A comprehensive transit model that accounts for spot-crossing events
+\end{itemize}
 
-Building upon \texttt{starry}, \cite{Luger2021b} introduced \texttt{StarryProcess}, a probabilistic model for stellar variability. \texttt{StarryProcess} 
-treats the distribution of spots on a stellar surface as a Gaussian process in spherical harmonic space. This approach allows for the efficient 
-modeling of stellar variability over long time scales, accounting for the evolution and rotational modulation of starspots. \texttt{StarryProcess} 
-provides a flexible framework for inferring stellar and starspot properties.
+By simultaneously modeling stellar variability, spot distributions, and planetary transits, our approach disentangles 
+spot effects from transit features, resulting in more accurate constraints on both stellar and planetary parameters. 
+When modeling multiple transits alongside underlying stellar variability, we can better determine stellar inclination, 
+obliquity, and spot distribution patterns.
 
-Our model combines the capabilities of both \texttt{starry} and \texttt{StarryProcess}, integrating them with a transit model to 
-create a comprehensive framework for analyzing light curves of spotted stars with transiting exoplanets. By leveraging the spherical harmonic 
-representation from \texttt{starry} and the probabilistic approach of \texttt{StarryProcess}, we can simultaneously model the stellar variability, 
-spot distribution, and planetary transits. This combined approach allows us to account for the effects of stellar spots on transit light curves, 
-including spot-crossing events, while also constraining the overall stellar variability pattern. This integrated model enables us to derive more 
-accurate and precise constraints on both stellar and planetary parameters. It accounts for the interplay between stellar activity and planetary transits, 
-allowing us to disentangle the effects of spots from true transit features. Furthermore, by modeling multiple transits simultaneously with the 
-underlying stellar variability, we can better constrain parameters such as stellar inclination, obliquity, and spot distribution, 
-while also improving our estimates of planetary properties.
+Figure \ref{fig:nullspace} illustrates a key insight of our approach: while previous methods struggled with the null 
+space problem (where many surface features don't affect the observable light curve), planetary transits effectively 
+"carve out" paths on the stellar surface that reveal information otherwise hidden in the null space. The transit trajectory 
+covers regions in the preimage component (observable) that would remain undetectable in conventional analysis.
 
-\begin{figure*}[hbt!]
-    \includegraphics[width=\textwidth]{figures/star-planet-cartoon.png}
+Our paper is organized as follows: Section \ref{sec:model} presents the \texttt{StarryStarryProcess} model; 
+Section \ref{sec:experiment1} presents results on non-evolving stellar surfaces; Section \ref{sec:experiment2} 
+presents results on evolving surfaces; Section \ref{sec:toi3884} presents results on TESS data for TOI-3884; and finally,
+ we discuss implications and assumptions in Section \ref{sec:discussion}.
+
+\begin{figure}[hbt!]
+    \includegraphics[width=0.46\textwidth]{figures/star-planet-cartoon.png}
         \caption{Light curves from the kinds of stars shown on the left panel (these light curves were calculated analytically 
         using \texttt{starry} \citep{Luger2019}): (a) the light curve shows a flat flux if the star has no surface features and no planet orbiting it; 
         (b) a transit in the light curve of the star that hosts an exoplanet; (c) if the star has one orbiting planet and one starspot under the planet's 
         trajectory then it is seen as a bump in a transit signal; (d) the light curve becomes complicated when the star has multiple spots.}
         \label{fig:cartoon}
-    \end{figure*}
-
-The light curves obtained from telescopic observations often provide insufficient information for comprehensive photometric studies of stellar 
-magnetic fields, yet they also yield an overabundance of data for simple forward modeling. To address the first issue, we focus on capturing the essence 
-of the variability caused by the magnetic dynamo rather than solving it in great detail (as per the argument in \cite{Luger2021b}). The second challenge can 
-be overcome by marginalizing over (integrating out) the properties of each individual spot on a star to infer the characteristics of the overall spot distribution. 
-This could be accomplished by modeling the properties of each spot and generating 
-the corresponding light curves with a model like \texttt{starry}, which does exactly that by constructing a disk-integrating signal 
-with spherical harmonics. Then one can use a posterior sampling scheme, such as Markov Chain Monte Carlo (MCMC), 
-while incorporating hyperparameters that control the distribution of spot properties across the entire population. The marginal posteriors for 
-the hyperparameters would ultimately provide the information we seek. Bayesian modeling provides a principled framework for incorporating prior 
-knowledge and uncertainties into the inference process, allowing us to robustly estimate the hyperparameters governing the distribution of star spot 
-properties while naturally accounting for the complex degeneracies and multi-modality inherent in the problem.
-However, in practice, the degeneracies and often extreme multi-modality of the distributions of individual spot properties would render this approach 
-quite challenging and computationally expensive. That's why we harness the elegant machinery like Gaussian processes (GPs) to perform 
-this marginalization on our behalf, simplifying the process and reducing the computational burden.
-
-In Figure \ref{fig:nullspace}, we present an analysis similar to Figure 4 in \cite{Luger2021b}, but with the addition of a planetary transit. 
-This figure illustrates the decomposition of a stellar surface map with a transiting planet into its preimage and null space components, 
-along with their corresponding contributions to the light curve. Crucially, we observe that the planetary trajectory covers the visible part in the preimage 
-component but absent in the null space. The transit path effectively "carves out" a strip on the stellar surface in nullspace but that is 
-fully contained within the preimage.
+    \end{figure}
 
 \begin{figure*}[hbt!]
     \includegraphics[width=\textwidth]{figures/nullspace-preimage.png}
@@ -146,32 +133,9 @@ fully contained within the preimage.
         information under planetary trajectory, while the nullspace is missing it.}
         \label{fig:nullspace}
     \end{figure*}
-% In this work, we develop a Gaussian process framework to model the surfaces of exoplanet-host stars based on time-series photometry. We utilize 
-% expressive kernel function from \cite{Luger2021b}. We first use this model on a simulated data to test the model, then we apply the model to an active K-dwarf
-% HAT-P-11. 
-
-% The planet-hosting star HAT-P-11 has been extensively studied for its star spots. HAT-P-11 is orbited by a Neptune-sized exoplanet, HAT-P-11b, 
-% which was discovered in 2008 via the transit method \citep{Bakos2010,Deming2011}. The transiting nature of HAT-P-11b has allowed for detailed 
-% characterization of the star spot activity on HAT-P-11, as star spots that are occulted during the planet's transit cause detectable brightening in 
-% the transit light curve \citep{Morris2017}. 
-
 
 %
-% \section{The Data}
-% The data is collected by the \emph{Kepler} mission and we extracted it using
-% \texttt{lightkurve}, a Python package for Kepler and TESS data analysis \citep{lightkurve}.
-% %
-% \begin{figure}[ht!]
-%     \script{TransitFitsWithStarry.py}
-%     \begin{centering}
-%         \includegraphics[width=\linewidth]{figures/TransitFitsWithStarry.pdf}
-%         \caption{
-%             Transit fits with starry -- no GPs.
-%         }
-%         \label{fig:TransitFitsStarry}
-%     \end{centering}
-% \end{figure}
-%
+
 \section{Hierarchical Bayesian model}
 \label{sec:model}
 In this section, we describe our Gaussian Process (GP) model and the likelihood calculation process used to estimate the model parameters.
@@ -262,9 +226,9 @@ We represent the GP hyperparameters as \emph{physically interesting} set of para
         \,\,\,
         \mathbb{c}
         \,\,\,
-        \mathbb{a}
+        \sigma^2_\phi
         \,\,\,
-        \mathbb{b}
+        \mu_\phi
         \,\,\,
         \mathbb{r}
         \right)^\top
@@ -273,7 +237,9 @@ We represent the GP hyperparameters as \emph{physically interesting} set of para
 %
 where $\mathbb{n}$ is the number of starspots, $\mathbb{c}$ is their contrast (defined as the intensity difference between the spot and the 
 background intensity, as a fraction of the background intensity), and $\mathbb{r}$ is the radius
-of the spots. $\mathbb{a}$ and $\mathbb{b}$ are the normalized parameters of the Beta distribution in $\cos\phi$, which is the probability density function (PDF) 
+of the spots, $\mu_\phi$ and $\sigma^2_\phi$ are the mean and variance of the latitude distribution. 
+It could be more convenient to sample $\mu_\phi$ and $\sigma^2_\phi$ using $\mathbb{a}$ and $\mathbb{b}$, where
+$\mathbb{a}$ and $\mathbb{b}$ are the normalized parameters of the Beta distribution in $\cos\phi$, which is the probability density function (PDF) 
 for the latitude $\phi$ of the spots. These parameters have a one-to-one correspondence to the mode $\mu_\phi$ and standard deviation $\sigma_\phi$ of the 
 distribution in $\phi$, allowing for a concise representation of the latitudinal distribution characteristics.
 The Beta distribution in $\cos\phi$ which has hyperparameters $\alpha$ and $\beta$, and the PDF given by
@@ -407,7 +373,7 @@ $| \cdots |$ denotes the determinant, and $K$ is the number of data points in
 each light curve.%
 
 For faster calculations we rewrite the likelihood function using \emph{the matrix conversion lemma}, also known as 
-Woodbury-Sherman-Morrison identity (see, e.g., \cite{Hogg2020}), which gives an expression for the inverse $\pmb{B}^{-1}$ of the marginalized likelihood variance:
+Woodbury-Sherman-Morrison identity \citep[see, e.g.,][]{Hogg2020}, which gives an expression for the inverse $\pmb{B}^{-1}$ of the marginalized likelihood variance:
 %
 \begin{linenomath}\begin{align}
     \label{eq:Hoggtrick}
@@ -600,21 +566,21 @@ This approach effectively breaks the degeneracy during the sampling process. By 
 the physical parameters, we ensure that our model explores the full range of physically meaningful configurations without redundancy. 
 This not only improves the efficiency of our sampling but also provides unambiguous constraints on the stellar geometry.
 
-\subsection{Step-by-step model instruction}
-In this section, we provide a comprehensive, step-by-step description of our model's methodology. 
-This process outlines the key stages in our analysis, from initial data preparation to the final likelihood computation:
+% \subsection{Step-by-step model instruction}
+% In this section, we provide a comprehensive, step-by-step description of our model's methodology. 
+% This process outlines the key stages in our analysis, from initial data preparation to the final likelihood computation:
 
-\begin{enumerate}
-    \item Acquire the target system's light curve data.
-    \item Preprocess the data by binning the out-of-transit observations to optimize computational efficiency while preserving signal fidelity.
-    \item Construct a design matrix incorporating both planetary (transit) and stellar orbital parameters, encapsulating the geometry of the star-planet system.
-    \item Establish physically motivated hyperparameters and prior distributions based on current astrophysical understanding and observational constraints.
-    \item Implement a sampling algorithm to draw from the defined prior distributions, exploring the parameter space efficiently.
-    \item Generate synthetic light curves from the sampled parameters, simulating the observed stellar and planetary signals.
-    \item Compute the covariance matrix for the Gaussian process, which models the stochastic components of stellar variability.
-    \item Assemble the inverse of the full covariance matrix, combining deterministic and stochastic elements of the model based on Equation \ref{eq:Hoggtrick}.
-    \item Calculate the likelihood of the observed data given the model parameters, quantifying the agreement between our model and the observations with Equation \ref{eq:log-likeRodrigo}.
-\end{enumerate}
+% \begin{enumerate}
+%     \item Acquire the target system's light curve data.
+%     \item Preprocess the data by binning the out-of-transit observations to optimize computational efficiency while preserving signal fidelity.
+%     \item Construct a design matrix incorporating both planetary (transit) and stellar orbital parameters, encapsulating the geometry of the star-planet system.
+%     \item Establish physically motivated hyperparameters and prior distributions based on current astrophysical understanding and observational constraints.
+%     \item Implement a sampling algorithm to draw from the defined prior distributions, exploring the parameter space efficiently.
+%     % \item Generate synthetic light curves from the sampled parameters, simulating the observed stellar and planetary signals.
+%     \item Compute the covariance matrix for the Gaussian process, which models the stochastic components of stellar variability.
+%     \item Assemble the inverse of the full covariance matrix, combining deterministic and stochastic elements of the model based on Equation \ref{eq:Hoggtrick}.
+%     \item Calculate the likelihood of the observed data given the model parameters, quantifying the agreement between our model and the observations with Equation \ref{eq:log-likeRodrigo}.
+% \end{enumerate}
 
 \subsection{Model for evolving surfaces}
 \label{sec:evolmodel}
@@ -682,14 +648,14 @@ We have implemented multiple priors in this work, carefully selected to maintain
 These priors serve to encapsulate our existing knowledge and assumptions about the parameters of interest, while allowing for sufficient flexibility 
 to avoid computational cost.
 \begin{itemize}
-    \item $\sim\mathcal{U}(low, high)$: a uniform distribution.
+    \item $\sim\mathcal{U}(\rm low, \rm high)$: a uniform distribution.
+    \item $\sim \rm Log \mathcal{U}(\rm low, \rm high)$: a log-uniform distribution.
     \item \textit{Planetary Inclination}: Considering that $i_p=\arccos{b}$, where $b$ is the impact parameter,
     the prior on the inclination is defined via the uniform prior $\sim\mathcal{U}(-b_{max}, -b_{max})$ on $b$, where $b_{max} = R_{\star} / a$.
     \item \textit{Period}: a prior on $P$ and $P_{\star}$. Instead of directly constraining the period, this prior works in log-space to ensure the period 
     remains positive and to make the distribution more symmetric. The actual prior is a uniform distribution in log-space, bounded by the log of the true 
     value plus or minus some fraction. The final period is determined by exponentiating the result of this log-uniform distribution, 
     which effectively creates a kind of log-uniform prior on the period itself.
-    \item \textit{Logarithmic}: a log-uniform distribution.
     \item \textit{Stellar Angle}: a normal distribution on orientation vectors $\tilde{x}$ and $\tilde{y}$ and a half-normal distribution on $\tilde{z}$. See Section
     \ref{sec:obl-inc} for the full explanation.
 \end{itemize}
@@ -719,18 +685,13 @@ cadence, and then we binned the out-of-transit flux to speed up the sampling pro
     \end{centering}
 \end{figure*}
 
-We utilized the \texttt{Python}-based implementation of the GP introduced by \cite{Luger2021b} to perform inference on the synthetic dataset. 
-We used No-U-Turn Sampling, a variant of Hamiltonian Monte Carlo 
-(NUTS; \cite{Duane1987,Hoffman2011}) to do posterior inference on our synthetic dataset.
+We used No-U-Turn Sampling, a variant of Hamiltonian Monte Carlo \citep[NUTS;][]{Duane1987,Hoffman2011} to do posterior inference on our synthetic dataset.
 
 We use several parameters in our sampling process: $i_p$ (the planetary inclination), $e$ (its eccentricity), $P$ (its orbital period),
 $t_0$ (start of the transit time), $R_p/R_\star$ (ratio of planetary to stellar radius), $u_1$ and $u_2$ (limb darkening coefficients),
 $i_\star$ (stellar inclination), $\lambda_\star$ (stellar obliquity), $P_\star$ (stellar rotational period), $\mathbb{n}$ (the number of spots), 
 $\mathbb{c}$ (their contrast), $\mathbb{r}$ (their radius), and $\mathbb{a}$ and $\mathbb{b}$ (parameters of the Beta distribution that describe 
-how the spots are spread across latitudes). As explained in \ref{sec:model}, it's more convenient to sample using $\mathbb{a}$ and $\mathbb{b}$ 
-rather than the mean $\mu_\phi$  and standard deviation $\sigma^2_\phi$ of the latitude distribution. 
-However, we transform $\mathbb{a}$ and $\mathbb{b}$ to posteriors in $\mu_\phi$  and $\sigma^2_\phi$ via Equations \ref{eq:beta2gauss}, 
-\ref{eq:mean_beta}, \ref{eq:var_beta} and show the resuts with the parameters $\mu_\phi$ and $\sigma^2_\phi$ hence they are more intuitive for understanding. 
+how the spots are spread across latitudes).  
 
 We use Equation \ref{eq:log-likeRodrigo} as our log likelihood term. The results are shown on Figure \ref{fig:experiment-1-map-corner-all},
 where we correctly infer almost all five parameters within $\sim 2$ standard deviations. The only parameters that are not constrained too well are 
@@ -742,7 +703,8 @@ To visually demonstrate the performance of our model, Figure \ref{fig:experiment
 the true stellar surface used in our synthetic data generation and the inferred surface map from our analysis, alongside the resulting light curve fit and 
 transit details. Of particular interest are the three consecutive transits shown in detail on the right panel. These zoomed-in views highlight our 
 model's ability to precisely fit transit events, including subtle spot-crossing phenomena. The spot-crossing events, visible as brief increases in brightness 
-during the transits, are well-captured by our model.
+during the transits, are well-captured by our model. It can be seen that true and inferred maps are not \emph{exactly} the same, but share the same surface features -- i.e. bright spots at the
+same locations, same active latitudes, etc. -- which still explains the surface of the star.
 %
 \begin{figure*}[hbt!]
     % \script{experiment-1-true-map.py}
@@ -817,7 +779,7 @@ uncertainties of the inference process.
     $e$                                       & $0.2$                 & $\sim\mathcal{U}(0, 0.5)$            & $0.224 \pm 0.001$                     \\
     $P$                                       & $5$ days              & Period                               & $5.0^{+7\times10^{-6}}_{-6.45\times10^{-6}}$                       \\
     $t_0$                                     & $0.5$                 & $\sim\mathcal{U}(-0.6, 0.6)$         & $0.5^{+10^{-4}}_{-9.8\times10^{-5}}$                       \\
-    $R_p / R_\star$                           & $0.04$                & Logarithmic                          & $0.04 \pm 2\times10^{-4}$                         \\ 
+    $R_p / R_\star$                           & $0.04$                & $\sim \rm Log \mathcal{U}(0.02, 0.08)$ & $0.04 \pm 2\times10^{-4}$                         \\ 
     $u_1$                                     & $0.4$                 & $\sim\mathcal{U}(0, 0.6)$            & $0.38^{+0.07}_{-0.06}$                         \\ 
     $u_2$                                     & $0.26$                & $\sim\mathcal{U}(0, 0.4)$            & $0.29 \pm 0.06$                         \\ \hline
     $i_\star$                                 & $90^\circ$            & Stellar Angle                        & $89.68^{+0.6}_{-0.56}$                      \\
@@ -835,13 +797,187 @@ uncertainties of the inference process.
 
 Finally, it is important to note that all results presented in this analysis have been carefully adjusted to account for the inclination and obliquity 
 degeneracy discussed in Section \ref{sec:obl-inc}. As discussed earlier, a system with stellar inclination $i_\star$ and obliquity $-\lambda_\star$ 
-produces identical light curves to a system with inclination $180^\circ-i_\star$ and obliquity $\lambda_\star$. In our sampling process, 
+produces identical light curves to a system with inclination $180^\circ-i_\star$ and obliquity $\lambda_\star$. In our analysis process, 
 when we encounter a solution that gives the obliquity $\lambda_\star$ instead of $-\lambda_\star$, we systematically transform the results. 
-Specifically, we change the inclination to $180^\circ-i_\star$ and flip the stellar surface map upside down for visualization purposes. 
+Specifically, we change the inclination to $180^\circ-i_\star$ for visualization purposes in Figure \ref{fig:experiment-1-map-corner-all}. 
 This approach ensures consistency in our reported results and allows for meaningful comparisons across different systems or models. 
 By explicitly addressing this degeneracy, we provide a more robust and physically interpretable set of results, avoiding potential ambiguities in the 
-orientation of the stellar spin axis relative to the planetary orbit.
+orientation of the stellar spin axis relative to the planetary orbit. To show this explicitly, in Figure \ref{fig:experiment-1-inf-map-comparison}
+we plot the inferred maps, where the left one is the map with the degeneracy accounted for, and the right one is the map with the actual inferred values 
+for obliquity and inclination (degeneracy is not accounted for). The two maps are inverses of eahc other.
 
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/experiment-1-comparison-inferred-maps.pdf}
+        \caption{
+            Comparison two inferred stellar surface maps, Left: the inferred stellar surface map, representing the mean of 1000 posterior samples
+            but with a changed obliquity to $-\lambda_{\rm inferred}$ and inclination to  $180^\circ-i_{\rm inferred}$. 
+            Right: the inferred stellar surface map, representing the mean of 1000 posterior samples
+            with an actual inferred obliquity (in this case, $\lambda_{\rm inferred}=\sim 31^\circ$) and inclination $i_{\rm inferred}=90^\circ$.
+        }
+        \label{fig:experiment-1-inf-map-comparison}
+    \end{centering}
+\end{figure*}
+%
+
+\subsection{Experiment II: evolving surface}
+\label{sec:experiment2}
+
+While our primary analysis assumes a static spot distribution across the observational baseline, stellar magnetic activity is 
+inherently dynamic. Active regions on stars like TOI-3884 evolve over time, with spots emerging, changing, and disappearing on 
+timescales of weeks to months. To explore this time dimension, we developed a preliminary model incorporating temporal 
+evolution of the stellar surface features. This experimental approach represents a conceptual extension of our methodology 
+rather than a fully validated model, yet it offers compelling insights into the potential for tracking stellar surface evolution 
+through transit observations.
+
+By allowing key spot parameters to vary as functions of time between transit epochs, we can begin to probe questions about spot 
+lifetimes, differential rotation, and activity cycles—aspects of stellar physics typically requiring long-term monitoring campaigns. 
+Our evolving surface model maintains the core framework of our primary analysis while introducing time-dependence to the 
+spot distribution through a Gaussian process temporal kernel. This creates a coherent evolution of the surface features that 
+respects both the constraints from individual transit events and the physical expectations for how stellar spots behave.
+Though this approach requires additional assumptions and computational complexity, initial results suggest that transit light 
+curves do contain retrievable information about surface feature evolution. The methodology presented here offers a 
+promising avenue for future work, potentially enabling new types of stellar activity studies using already-available 
+transit photometry from missions like TESS, Kepler, and the upcoming PLATO mission.
+
+Figures \ref{fig:experiment-2-lc} and \ref{fig:experiment-2-true-maps} showcase the experimental results from our 
+evolving surface model. Figure \ref{fig:experiment-2-lc} presents a simulated light curve spanning approximately 150 days, 
+demonstrating how stellar rotation and evolving surface features produce complex photometric variations. The black line 
+represents the true underlying flux variations, while the blue points with error bars show binned simulated observations. 
+This light curve exhibits amplitude variations between approximately 0.87 and 1.12 in relative flux, with complex patterns 
+that cannot be explained by simple periodic modulation, indicating the presence of multiple evolving active regions.
+
+Figure \ref{fig:experiment-2-true-maps} complements this time-series data by displaying the corresponding stellar 
+surface maps at three representative epochs. Each row presents both a 3D visualization of the stellar hemisphere facing the 
+observer (left panels) and a Mollweide projection of the complete stellar surface (right panels). 
+These maps reveal the dynamic nature of the spot distribution, with active regions emerging, evolving, and disappearing over time
+from top to bottom. Particularly notable is the migration of spots in both latitude and longitude, suggesting potential 
+differential rotation, as well as changes in the size and intensity of individual features.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/experiment-2-lc.pdf}
+        \caption{
+            Simulated light curve from our evolving stellar surface model spanning approximately 150 days. The black line represents 
+            the true underlying flux variations, while the blue points with error bars show binned simulated observations. 
+            The complex pattern of photometric variability, with amplitude variations between approximately 0.87 and 1.12 in 
+            relative flux, reflects the combined effects of stellar rotation and evolving surface features. Note the non-periodic 
+            nature of the variations and changing amplitude over time, indicative of multiple active regions evolving at different 
+            rates and locations on the stellar surface.}
+        \label{fig:experiment-2-lc}
+    \end{centering}
+\end{figure*}
+%
+%
+\begin{figure}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=0.86\linewidth]{figures/experiment-2-true-map.pdf}
+        \caption{Simulated stellar surface maps at three representative epochs corresponding to the light curve in 
+        Figure \ref{fig:experiment-2-lc}. Each row presents both a 3D visualization of the visible stellar hemisphere 
+        (left) and a Mollweide projection of the complete surface (right). Dark purple regions indicate cooler spots, while 
+        yellow-orange areas represent the warmer photosphere. The maps illustrate the evolution of active regions over time, 
+        including changes in spot distribution, emergence of new features, and potential differential rotation effects. 
+        The dotted lines on the 3D visualizations indicate the planet's transit path. These surface maps demonstrate how the 
+        complex photometric variations in the light curve arise from the dynamic nature of stellar activity patterns.}
+        \label{fig:experiment-2-true-maps}
+    \end{centering}
+\end{figure}
+%
+
+Figure \ref{fig:experiment-2-corner} presents the posterior distributions for the key hyperparameters in our spot model. 
+The parameters include the spot latitude mean ($\mu_\phi$), latitude variance ($\sigma^2_\phi$), spot contrast parameter 
+($\mathbb{c}$), radius ($\mathbb{r}$), and the number of spots ($\mathbb{n}$).
+The posterior for spot latitude mean ($\mu_\phi$) is tightly constrained around 30 degrees, consistent with our 
+the true value (shown with black lines). We see excellent recovery of the latitude mean, with the true value falling well 
+within our posterior distribution and the 1$\sigma$ uncertainty bounds from the simulation aligning well with the width of 
+our recovered posterior. The latitude variance ($\sigma^2_\phi$) is centered around 5-6 square degrees, again accurately 
+capturing the true value indicated by the black line. Our model successfully recovers this aspect of the spot distribution, 
+and our uncertainty estimates appear consistent with the true 1$\sigma$ range. The active latitudes are shown on Firgure \ref{fig:experiment-2-active}.
+The radius ($\mathbb{r}$) parameter, which controls the typical size of spot features, is well-constrained at 
+approximately 19.5 degrees. Future models will likely improve the recovery of this parameter by incorporating 
+multi-wavelength transit observations, which would better constrain the physical extent of surface features by leveraging 
+the wavelength-dependent contrast of spots.
+The correlation between number of spots ($\mathbb{n}$) and contrast ($\mathbb{c}$) shows 
+a well-known degeneracy in spot modeling: as the number of spots increases, the contrast tends to decrease to 
+maintain a similar overall flux effect.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/experiment-2-corner-gps.pdf}
+        \caption{Posterior distributions and correlations for key spot model hyperparameters recovered from simulated data. 
+        The solid black lines indicate true parameter values used to generate the simulated light curves, while dashed black 
+        lines show the $\pm1\sigma$ boundaries. Parameters include spot latitude mean ($\mu_\phi$), latitude variance 
+        ($\sigma^2_\phi$), radius ($\mathcal{r}$), spot contrast ($\mathcal{c}$), and number of spots ($n$). 
+        The model successfully recovers all parameters within the expected uncertainty ranges.
+         Note the correlation between number of spots and contrast, a well-known degeneracy in spot modeling.}
+        \label{fig:experiment-2-corner}
+    \end{centering}
+\end{figure*}
+%
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/experiment-2-active-lats.pdf}
+        \caption{Posterior probability distribution of spot latitudes for Section \ref{sec:experiment2} just like the Figure 
+        \ref{fig:experiment-1-acttive-lats}. The black line shows the true distribution, 
+        while the pink lines represent individual posterior samples.}
+        \label{fig:experiment-2-active}
+    \end{centering}
+\end{figure*}
+%
+Figure \ref{fig:experiment-2-results} presents a comprehensive view of our evolving surface model's ability to reconstruct 
+stellar surface features from simulated light curve data. The figure is organized into three key components that demonstrate 
+the model's performance at different epochs.
+The top portion shows the full simulated light curve (center panel), with three zoomed-in regions highlighting three random consecutive transits 
+(top three panels). For each epoch, we compare the observed simulated data points (gray dots) with our model fit (pink line), 
+demonstrating excellent agreement between the observations and our reconstruction.
+The central portion of the figure displays the true stellar surface maps (left column) alongside our (averaged over 1000 samples) 
+inferred reconstructions 
+(middle column) at three different epochs, labeled as Map 1, Map 2, and Map 3, where Map 1 evolves to Map 2, which evolves to Map 3. 
+Each map is shown as a Mollweide projection with a consistent color scale where dark purple regions indicate cooler spots and 
+yellow-orange areas represent the warmer photosphere. The inferred maps show a north-south flip compared to the true maps. 
+This hemisphere inversion is a direct manifestation of the inclination-obliquity degeneracy discussed in Section \ref{sec:obl-inc}, 
+where transit observations alone cannot distinguish between certain combinations of stellar inclination and obliquity that result 
+in mirrored surface feature distributions. Therefore, the resulting obliquity of the star is inferred to be 
+$\lambda_\star=30.49^{+0.58}_{-0.49}$ while the true obliquity is $-30^\circ$ (so, the opposite). 
+Additionally, the stellar inclination's true 
+values is $90^\circ$ while the inferred value is $i_\star=91.36^{+0.33}_{-0.36}$ (close to $180^\circ-i_{\rm true}$).
+Despite this expected degeneracy, the inferred maps successfully capture the essential features of the true spot distribution, 
+including the number, approximate size, and longitudinal positioning of major active regions. This is particularly evident in 
+Map 3, where the model correctly identifies a prominent high-latitude bright region, though it places it in the opposite 
+hemisphere.
+The right column shows the corresponding light curve sections for each map epoch, further illustrating how well our model 
+reproduces the observed flux variations despite the hemisphere ambiguity. The bottom panel presents the complete light curve 
+with vertical lines marking the times corresponding to the three maps, contextualizing how the surface features evolve over the 
+full observational baseline.
+This figure demonstrates that while inherent degeneracies prevent unique determination of the absolute spot latitudes from 
+transit data alone, our model can nevertheless recover detailed and physically meaningful information about the evolution of 
+stellar surface features.
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/experiment-2-results.pdf}
+        \caption{Comparison between true and inferred stellar surface maps from our evolving surface model using simulated data. 
+        Top: Simulated light curve (center) with three transit epochs (above). Middle: True stellar surface maps (left column) 
+        and our inferred reconstructions averaged over 1000 samples (middle column) at three epochs. Bottom: Full light curve 
+        with vertical lines marking the three mapped epochs. Note the north-south inversion in the inferred maps compared to 
+        the true maps, demonstrating the inclination-obliquity degeneracy discussed in Section \ref{sec:obl-inc}. 
+        Despite this expected degeneracy, our model successfully recovers the number, approximate size, and longitudinal 
+        positioning of major active regions, with excellent agreement between the model light curve (red line) and simulated 
+        observations (gray points).}
+        \label{fig:experiment-2-results}
+    \end{centering}
+\end{figure*}
+%
 
 \section{The Case of TOI-3884}
 \label{sec:toi3884}
@@ -955,7 +1091,7 @@ of PT in \texttt{ptemcee} \citep{ptemcee}. \texttt{ptemcee} handles these exchan
 
 \begin{equation}
     \label{eq:ptemcee}
-    P_{\rm exchange} = \min\left(1, \exp\left[\left(\frac{1}{T_i} - \frac{1}{T_j}\right)\right.\right.\left.\left.\left(\ln p(\theta_j|\mathcal{D}) - \ln p(\theta_i|\mathcal{D})\right)\right]\right)
+    P_{\rm exchange} = \min\left(1, \exp\left[\left(\frac{1}{T_i} - \frac{1}{T_j}\right)\right.\right.\left.\left.\left(\ln \mathcal{L}(\theta_j) - \ln \mathcal{L}(\theta_i)\right)\right]\right)
 \end{equation}
 
 where $T_i$ and $T_j$ are the temperatures of adjacent chains, and $\theta_i$ and $\theta_j$ are their respective states.
@@ -984,7 +1120,7 @@ observations. Collectively, these parameters paint a picture of TOI-3884 as an a
     \includegraphics[width=\textwidth]{figures/toi3884-corner-gps.pdf}
     \caption{Corner plot showing the posterior distributions and correlations for the spot model parameters. 
     The diagonal panels display the marginalized posterior distributions for each parameter: the spot size 
-    $\mathcal{r}$ ($^{\circ}$), spot contrast $\mathcal{c}$, number of spots $\mathcal{n}$, spot latitude $\mu_{\phi}$ ($^{\circ}$), 
+    $\mathbb{r}$ ($^{\circ}$), spot contrast $\mathbb{c}$, number of spots $\mathbb{n}$, spot latitude $\mu_{\phi}$ ($^{\circ}$), 
     and the angular variance in latitude $\sigma^2_{\phi}$ ($^{\circ}$). The spot latitude is concentrated at high values around 
     $75^{\circ}$--$80^{\circ}$, 
     confirming the presence of a near-polar spot. The spot contrast is relatively modest with most of the probability mass below
@@ -1134,7 +1270,7 @@ TOI-3884 system.
 %
 
 \section{Discussion}
-
+\label{sec:discussion}
 Our analysis demonstrates that transit light curves can provide meaningful constraints on stellar surface features and 
 three-dimensional geometry, even when using single-band photometric data. The model successfully recovers a consistent spot 
 distribution across multiple posterior samples (see Section \ref{sec:experiment1}), characterized predominantly by high-latitude 
@@ -1213,27 +1349,124 @@ systems for which high-resolution spectroscopy is challenging.
     \label{fig:toi3884-compare}
 \end{figure*}
 %
+\subsection{Evolving Surface}
+The evolving surface model presented in Sections \ref{sec:evolmodel} and \ref{sec:experiment2} demonstrates a promising 
+approach for tracking stellar surface feature changes over time, and definitely needs to be imroved further. 
+However, it is important to note that there are multiple strategies for addressing time-varying stellar surfaces in transit 
+modeling. While our preliminary evolving model incorporates time-dependent surface features through a linear interpolation, 
+we found that a simpler approach can also be effective for many applications.
+
+For TOI-3884, we adopted a pragmatic solution by segmenting the light curve into shorter time intervals and applying 
+our static spot model (Section \ref{sec:experiment1}) to each segment independently. This approach is justified when 
+the segments are shorter than the characteristic evolution timescale of stellar surface features. Based on empirical studies 
+of active stars, we chose a segment duration of approximately half the stellar rotation period, 
+which ensures that surface evolution within each segment is minimal while still providing sufficient data for robust model fitting.
+This segmented approach offers several advantages. First, it avoids the additional complexity and computational expense of a 
+fully time-dependent model while still capturing the essential time evolution of the stellar surface. Second, it allows for 
+direct comparison between epochs, enabling the identification of persistent features (like the high-latitude spot we detected) 
+versus transient ones. Third, it provides a more straightforward statistical interpretation since each segment's model is 
+independent of the others.
+The results from our segmented analysis of TOI-3884 reveal that while some surface features evolve over the observational 
+baseline, the high-latitude spot configuration remains relatively stable. 
+
+For future work, one should compare the results from this segmented approach with fully time-dependent models for determining 
+the optimal modeling strategy for different types of stars and observational scenarios, which is beyond the scope of this paper.
+Stars with rapid surface evolution or observations spanning many rotation periods might benefit more from the fully 
+time-dependent approach, while observations covering only a few rotation periods may be adequately modeled with the 
+segmented approach.
+Additionally, the segmented approach provides a practical starting point for characterizing surface evolution, 
+from which more sophisticated time-dependent models can be developed. The evolving surface model presented 
+here represents an initial step toward such comprehensive modeling, which will become increasingly important as 
+higher-precision photometry becomes available from current and future missions.
+\subsection{Small Spots}
+An important limitation of our current model concerns the spatial resolution of stellar surface features. 
+Our implementation uses spherical harmonics with a maximum degree of $l_{\rm max}=15$, which provides sufficient 
+resolution to capture large-scale spot structures like the high-latitude features we identified on TOI-3884, or the spots of size 
+$\sim 10^\circ$ like in Section \ref{sec:experiment1}. 
+However, this resolution is inadequate for modeling the small-scale spot distributions characteristic of the Sun.
+The Sun exhibits numerous small spots with typical sizes of just a few degrees across the stellar surface, often appearing 
+in complex active regions. Such small-scale features can significantly impact transit depth measurements while being difficult 
+to resolve with current modeling approaches. \cite{Morrisradius} showed that using ingress/egress durations rather than 
+transit depths can provide more accurate radius measurements when small spots are present on the stellar surface.
+Still, accurately representing such fine-scale structures would require substantially higher spherical 
+harmonic degrees, potentially $l_{\rm max} > 50$. The computational challenge of such high-resolution modeling is very significant. 
+The size of the covariance matrix in our approach scales as $(l_{\rm max}+1)^2 \times (l_{\rm max}+1)^2$, meaning that 
+doubling the maximum degree increases the memory requirements by a factor of 16 and the computational time by even more.
+
+For TOI-3884, the $l_{\text{max}}=15$ resolution is justified by what we know about active M dwarfs, which tend to form 
+larger spot structures than G-type stars like the Sun. Zeeman-Doppler imaging and spectropolarimetric studies of M dwarfs 
+generally reveal simpler, larger-scale magnetic field configurations, particularly for fully convective stars. 
+However, it remains unclear whether these stars truly lack small-scale features or if current observational techniques 
+simply cannot resolve them. 
+
+Additionally, we note that the effective resolution achievable from transit light curves is inherently limited by the transit 
+chord width and photometric precision. Even with perfect computational resources, the information content of the transit 
+signal places fundamental constraints on the recoverable spot size distribution. Multi-wavelength transit observations 
+would provide additional constraints that could help justify the increased computational expense of higher-resolution models.
+
+Given these considerations, our current $l_{\text{max}}=15$ model represents a practical compromise between resolving 
+power and computational feasibility. It captures the dominant features affecting the transit light curves while remaining 
+tractable for Bayesian inference with current computational resources. The approach can be scaled to higher resolutions as 
+needed when studying stars where smaller spot structures significantly impact the observations.
+
 \subsection{Implications for M Dwarf Magnetic Activity}
 
 The high-latitude spot configuration we detect aligns with theoretical expectations for rapidly rotating low-mass stars like 
 TOI-3884. Magnetohydrodynamic simulations predict that Coriolis forces in such stars should preferentially channel 
 magnetic flux emergence toward the rotational poles \citep{Yadav2015,Almenara2022}. Our results provide observational support for these theoretical predictions, 
 demonstrating that transit modeling can be a valuable tool for studying stellar magnetic activity patterns.
+The spot distribution on TOI-3884 is consistent with studies of other active M dwarfs, where polar spots have been observed 
+to persist for multiple rotation periods or even longer \citep{Barnes2017,Morin2008,Strassmeier2009}. It should be noted, though,
+that for a better understanding of the magnetic dynamo on M dwarfs, the extensive study on the whole population of different
+stars of different spectral types is necessary. 
+For example, \cite{Morin2008} showed spectropolarimetric observations of five mid-M dwarf stars 
+(including GJ 65A/B binary components), and showed that these fully-convective or near-fully-convective stars possess 
+mainly strong, axisymmetric, poloidal magnetic fields with minimal differential rotation, contrasting with magnetic 
+topologies observed in more massive G and K stars. However,
+\cite{Barnes2017} showed Doppler imaging observations of three fully convective M dwarf stars, revealing surprisingly 
+different starspot distributions between the near-identical binary components GJ 65A and GJ 65B, with GJ 65A showing 
+high-latitude circumpolar spots similar to GJ 791.2A, while GJ 65B displays larger spots concentrated at intermediate 
+latitudes, suggesting different dynamo mechanisms may be operating despite their similar masses and rotation rates.
+
 The combination of a moderately inclined stellar rotation axis and significant high-latitude spots also helps explain why 
 previous analyses of TOI-3884 detected relatively low photometric variability despite evidence for active chromospheric emission. 
 High-latitude spots maintain a relatively constant projected area as the star rotates when viewed at moderate inclinations, 
 resulting in reduced rotational modulation while still affecting transit profiles when intersected by the planet's path.
 
-\subsection{Future Directions}
+\section{Conclusions}
+The \texttt{StarryStarryProcess} model presented in this work represents a significant advancement in our ability to characterize stellar surfaces using transit light curves. 
+By combining spherical harmonic surface mapping, probabilistic spot modeling, and comprehensive transit analysis, we demonstrate that planetary transits provide unique constraints on 
+stellar surface features that are not obtainable from rotational light curves alone.
 
-While our analysis demonstrates the power of photometric transit modeling, the remaining degeneracies point 
-to the value of multi-wavelength observations for future studies. Transit observations at different wavelengths would 
-provide additional constraints on spot temperatures and coverage, potentially breaking some of the degeneracies in our current 
-model. Similarly, combining our photometric approach with spectroscopic measurements would enable more precise determinations 
-of the three-dimensional system geometry.
-For TOI-3884 specifically, continued monitoring of transit events could reveal temporal evolution of the spot distribution, 
-providing insights into the magnetic activity cycle of this M dwarf. Such observations would be valuable for understanding 
-how stellar activity might impact the planetary environment and potential habitability of planets orbiting active M dwarfs.
+Our key results include:
+\begin{itemize}
+    \item Transit light curves contain sufficient information to constrain the latitude distribution of starspots, particularly when multiple transit events are analyzed simultaneously. 
+    This addresses a fundamental limitation of previous approaches that relied solely on rotational modulation.
+    \item The model successfully recovers three-dimensional information about the star-planet system geometry, including stellar inclination and obliquity, using only photometric data. 
+    \item For TOI-3884, we find compelling evidence for high-latitude spot concentrations ($\mu_\phi = 75.24^{+2.67}_{-4.11}$$^\circ$) and significant spin-orbit misalignment 
+    ($\lambda_\star = 80.37^{+49.6}_{-27.5}$$^\circ$).
+    \item Our model accurately predicts transit light curve morphologies across multiple epochs, including subtle spot-crossing events that appear as small brightness increases during transit.
+    \item The preliminary extension to evolving surfaces demonstrates the potential for tracking spot evolution over time, though additional development is needed for fully time-dependent modeling.
+\end{itemize}
+The inherent degeneracies in transit modeling -- particularly the ambiguity between northern and southern hemisphere spot locations and the inclination-obliquity degeneracy -- represent fundamental 
+limitations that persist even with our approach. However, the consistency of the high-latitude spot configuration across different posterior samples indicates that our overall 
+characterization of stellar activity patterns is robust.
+
+More broadly, our work demonstrates that careful modeling of transit light curves can significantly improve both planetary characterization and stellar activity studies. 
+By disentangling spot effects from planetary signals, we enable more accurate measurements of exoplanet properties while simultaneously extracting valuable information about stellar magnetic 
+activity. This synergy will become increasingly important as missions like JWST attempt to characterize the atmospheres of Earth-sized planets around active host stars.
+
+Future work should focus on incorporating multi-wavelength transit observations to better constrain spot temperatures and sizes, developing computationally efficient 
+implementations that can handle higher-resolution surface maps, and refining time-dependent models to track spot evolution over longer baselines. 
+The framework established here provides a foundation for these advances and opens new possibilities for studying stellar surfaces through 
+the unique window provided by transiting exoplanets.
+
+\section*{Acknowledgments}
+S.S. thanks Adrian Price-Wheelan, Lionel Garcia, and the Data Group at Flatiron Institute for the valuable discussions. 
+S.S. also acknowledges a graduate fellowship at the Kavli Institute for Theoretical Physics, 
+during which this research was completed. S.S. thanks the LSSTC Data Science Fellowship Program, funded by LSSTC, 
+NSF Cybertraining Grant number 1829740, the Brinson Foundation, and the Moore Foundation; her participation in the program has 
+benefited this work.
 
 \bibliography{bib}
 \end{document}
