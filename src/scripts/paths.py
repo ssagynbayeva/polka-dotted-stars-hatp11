@@ -24,6 +24,3 @@ tex = src / "tex"
 
 # Absolute path to the `src/tex/figures` folder (contains figure output)
 figures = tex / "figures"
-
-# Absolute path to the `src/tex/output` folder (contains other user-defined output)
-output = tex / "output"

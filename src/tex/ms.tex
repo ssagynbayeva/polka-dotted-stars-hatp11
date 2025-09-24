@@ -7,7 +7,6 @@
 \renewcommand{\thefigure}{\arabic{figure}}
 
 \usepackage{bbold}
-\usepackage{fontawesome5}
 
 \let\listofchanges\undefined
 \usepackage[commandnameprefix=always,commentmarkup=uwave]{changes}
@@ -16,18 +15,23 @@
 \definechangesauthor[name={Brett}, color=yellow]{B}
 \definechangesauthor[name={Rodrigo}, color=green]{R}
 
+\DeclareMathOperator{\diag}{diag}
+
+\usepackage{hyperref}  % For creating hyperlinks
+\usepackage{fontawesome5}  % For the GitHub icon
+
 % Begin!
 \begin{document}
 
 % Title
-\title{Polka-dotted Stars: starspots of HAT-P-11, KOI-4, Kepler-63}
+\title{Polka-dotted Stars II: Starspots and obliquities of Kepler-17 and Kepler-45}
 
 % Author list
 \author[0000-0002-6650-3829]{Sabina Sagynbayeva}
 \email{sabina.sagynbayeva@stonybrook.edu}
 \affiliation{\sbu}
 \affiliation{\cca}
-\affiliation{Kavli Institute for Theoretical Physics, University of California, Santa Barbara, CA 93106, USA}
+% \affiliation{Kavli Institute for Theoretical Physics, University of California, Santa Barbara, CA 93106, USA}
 
 \author[0000-0003-1540-8562]{Will M. Farr}
 % \email{wfarr@flatironinstitute.org}
@@ -38,28 +42,1038 @@
 % \email{wfarr@flatironinstitute.org}
 \affiliation{Space Telescope Science Institute, 3700 San Martin Dr, Baltimore, MD 21218, USA}
 
-\author[0000-0002-0296-3826]{Rodrigo Luger}
-% \email{rodluger@gmail.com}
-\affiliation{\cca}
+% \author[0000-0002-0296-3826]{Rodrigo Luger}
+% % \email{rodluger@gmail.com}
+% \affiliation{\cca}
 
 % Abstract with filler text
+
 \begin{abstract}
-    asbtract
+Starspots trace stellar magnetic activity and affect both stellar evolution and exoplanet
+characterization. While occultation-based spot studies have been applied to individual systems,
+comparative analyses remain limited. We apply the \texttt{StarryStarryProcess} Bayesian surface
+mapping framework to archival \textit{Kepler} light curves of two planet hosts—Kepler-63 and Kepler-17—extending 
+the validation established on TOI-3884 (Paper~I).
+Across both systems we infer characteristic spot radii of $\sim$10$^\circ$.
+The latitudinal distributions of both G-dwarfs exhibit bimodal belts (Kepler-63 at $\pm$30$^\circ$, Kepler-17 at
+$\pm$15$^\circ$). Our analysis yields stellar obliquity measurements in excellent agreement with previous
+studies for all four systems. This validates our methodology and demonstrates that transit-based
+surface mapping can simultaneously recover planetary parameters, stellar orientations, and
+magnetic morphologies. The systems span nearly aligned (Kepler-17) to highly
+misaligned (Kepler-63) geometries.
+
 \end{abstract}
 
 % Main body with filler text
 \section{Introduction}
+\label{sec:intro}
+
+Starspots are key tracers of stellar magnetic activity, providing insights into dynamo processes,
+stellar rotation, and the interactions between stars and their close-in planets. Transit and
+occultation techniques have been widely used to characterize spot coverage and distribution
+\cite[e.g.,][]{Sanchis2011, Morris2017, Valio2017}, enabling constraints on active
+latitudes, spot lifetimes, and their impact on planetary parameter determinations.
+
+In \cite{paper1} (hereafter Paper~I), we introduced the \texttt{StarryStarryProcess}
+framework, a Bayesian model for stellar surface mapping from transit photometry, and
+demonstrated its ability to jointly constrain spot properties and system geometry. Paper~I
+validated this approach on the young, active system TOI-3884, showing that joint modeling of
+rotational modulation and transits can break key degeneracies in stellar inclination and
+obliquity.
+
+Occultation-based spot coverage studies have primarily focused on individual systems or limited
+epochs of high-quality data. With the wealth of archival \textit{Kepler} photometry, however, we
+now have the opportunity to extend such analyses to long-baseline, high-precision light curves
+of multiple active host stars. The \textit{Kepler} sample contains systems spanning a wide range
+of stellar types, ages, and activity levels, offering an ideal laboratory to test the robustness of
+spot coverage inference and to probe diversity in stellar magnetic topologies.
+
+In this work, we apply the \texttt{StarryStarryProcess} framework to two well-studied \textit{Kepler}
+systems: Kepler-63 and Kepler-17. By leveraging long-baseline archival
+data, we aim to (i) characterize spot size, contrast, and latitude distributions across a diverse set
+of stellar hosts, (ii) compare our results with previous occultation-based analyses, and (iii) get the stellar obliquity measurements. 
+This study builds upon
+the validation established in Paper~I and expands the methodology to a broader comparative
+context, advancing our understanding of starspot demographics and stellar magnetism.
+
+The paper is divided as follows: We describe the methodology in Section \ref{sec:model}; show the results for Kepler-63
+in Section \ref{sec:kepler63}; for Kepler-17--in Section \ref{sec:kepler17}; we provide a discussion of limitations 
+in Section \ref{sec:discussion}.
+
+
+\section{Methodology}
+\label{sec:model}
+We employed the \texttt{StarryStarryProcess} \citep[][]{paper1} Bayesian model to map the surface features of 
+two stars hosting transiting planets: Kepler-63 and Kepler-17. The \texttt{StarryStarryProcess} 
+framework utilizes Bayesian inference to reconstruct stellar surface maps by analyzing transit light curves, 
+leveraging the rotational modulation and transit signatures to constrain surface brightness variations. 
+The model incorporates prior knowledge of stellar properties and transit parameters while accounting for 
+observational uncertainties through a probabilistic approach.
+
+To account for the temporal evolution of stellar surface features, we divided the photometric time series for 
+each target into discrete chunks of duration $P_{\rm rot}/2$, where $P_{\rm rot}$ is the stellar rotation period. 
+This chunking approach recognizes that starspots evolve on timescales comparable to or shorter than the stellar 
+rotation period, and allows us to capture temporal variations in the surface magnetic field topology while 
+maintaining sufficient photometric coverage within each chunk for robust surface reconstruction. 
+The analysis was performed on an ensemble of these chunks, with the reported surface maps representing 
+the averaged configuration over each chunk period. This methodology enables us to track the evolution of 
+magnetic features while avoiding the assumption of static surface patterns over extended observing periods.
+
+The model accounts for the obliquity-inclination degeneracy discussed in \citet{paper1}, where the stellar obliquity ($\psi$) 
+and stellar inclination ($i_{\star}$) can be degenerate between northern and southern hemispheres. By incorporating 
+both rotational modulation and transit constraints simultaneously, our approach breaks these degeneracies 
+to provide robust estimates of the three-dimensional stellar orientation and surface feature distributions.
+
+Rather than reporting the traditional model parameters of contrast ($\mathbb{c}$)
+and number of spots ($\mathbb{n}$) as in \citet{paper1}, we focus on physically measurable quantities 
+that directly relate to observable stellar variability. The $\mathbb{n}$ parameter is not truly a spot count but 
+rather a scaling parameter on the mean and variance of the spot flux decrement, and therefore does not naturally 
+correspond to the number of spots visible in surface maps. Similarly, the contrast parameter $\mathbb{c}$ does not directly 
+track the average contrast of individual spots. Instead, we characterize stellar activity through two measurable 
+parameters: the average fractional decrement in stellar flux due to spots, 
+$\mathbb{d} = \mathbb{n} \cdot \mathbb{c} \cdot \mathbb{r}^2/R_{\star}^2$, 
+which depends on the combination of all three model parameters and represents the observable flux reduction; and the 
+root-mean-square (RMS) fractional fluctuation in stellar flux decrement due to spots, 
+$\rm{RMS}_{\rm spot} = \mathbb{d} / \sqrt{n}$, which quantifies the amplitude of rotational modulation 
+caused by the inhomogeneous spot distribution.
+
+For each target star, we processed the available photometric time series data, extracting transit events and 
+out-of-transit rotational modulation to inform the surface reconstruction within each temporal chunk. We also binned the out-of-transit portion of the light curves.
+The Bayesian framework allows for proper propagation of uncertainties throughout the analysis, 
+providing posterior distributions for all derived parameters including spot properties, stellar orientation, 
+and surface brightness maps.
+
+
+\section{Kepler-63}
+\label{sec:kepler63}
+Kepler-63 is a G-type main sequence star hosting Kepler-63b, a sub-Neptune that orbits every 9.434 days at a 
+distance of 0.08 AU. With a mass of 0.38 $M_J$ (approximately 120 Earth masses) and a radius of 0.55 $R_J$ (6.1 Earth radii), 
+the planet has a density of 2.01 g/cm$^3$. This system is particularly notable for its high stellar obliquity and active 
+stellar surface.
+
+The Kepler light curve for this system spans multiple quarters and reveals both the periodic transit signature and 
+the quasi-periodic rotational modulation caused by evolving starspots. Figure \ref{fig:kepler63-pdscap-lc} presents the 
+complete photometric time series from quarters 3-6, covering approximately 350 days. The characteristic transit dips 
+are clearly visible against the background of stellar variability, which reaches amplitudes of several percent due 
+to the high level of magnetic activity on this young star.
 
 %
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/kepler63keplerlc.png}
+        \caption{Light curve of Kepler-63 showing relative flux measurements over time for quarters 3, 4, 5, and 6 of 
+        the Kepler mission. The data spans approximately 350 days (from BJD 2457250 to 2457600) and shows periodic 
+        transit events appearing as characteristic dips in the stellar brightness against the background of rotational modulation from starspots.}
+        \label{fig:kepler63-pdscap-lc}
+    \end{centering}
+\end{figure*}
+%
+
+To characterize both the planetary parameters and stellar activity, we applied our joint modeling approach 
+to a representative 80-day segment of the light curve. Figure \ref{fig:kepler63-results} shows the results of 
+this analysis, with the upper panel displaying the complete time series and the lower panels showing individual transit fits. 
+The orange curve in the upper panel represents the detrended photometry, while black points show the binned model predictions. 
+Each individual transit (grey points with error bars) is well-fitted by our model (purple lines), with the purple uncertainty 
+bands representing the $1\sigma$ model uncertainty across 200 MCMC samples. The consistency of transit depths and shapes 
+across all epochs confirms the robustness of our planetary parameter determination despite the stellar activity.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/result_kepler63lc.png}
+        \caption{Transit photometry and model fits for Kepler-63. Top: Complete light curve showing eight 
+        detected transits over 80 days of observations. Orange line shows detrended photometry; black points represent 
+        binned model averages of 200 samples. Bottom panels: Individual transit events with observed 
+        photometry (grey points with error bars) and the average model across 200 samples (purple lines) with $1\sigma$ uncertainty. 
+        Model parameters were determined through simultaneous fitting of all transits and the rotational modulation.}
+        \label{fig:kepler63-results}
+    \end{centering}
+\end{figure*}
+%
+
+Our modeling approach simultaneously constrains both the planetary system parameters and the 
+properties of the stellar magnetic activity. Figure \ref{fig:kepler63-corener-gps} presents the posterior 
+distributions for the key starspot parameters derived from our analysis. The corner plot reveals well-constrained 
+solutions for spot radius ($\mathbb{r}$), flux decrement ($\mathbb{d}$), $\rm{RMS}_{\rm{spot}}$, and 
+the mean and standard deviation of spot latitudes ($\mu_\phi$ and $\sigma_\phi$). The tight parameter correlations 
+visible in the off-diagonal panels demonstrate that the photometric data contains sufficient information to 
+simultaneously characterize multiple aspects of the stellar magnetic field geometry.
+
+Our derived spot characteristics are consistent with previous studies of this system. \cite{Sanchis2013} 
+reported typical spot radii of $\sim10^\circ$ with maximum sizes reaching $15^\circ-20^\circ$, which aligns 
+well with our inferred spot radius of $10.02^{+0.03}_{-0.02}$ degrees. The RMS fractional fluctuation in stellar flux decrement, 
+$\rm{RMS}_{\rm spot}$, exhibits a narrower distribution centered near 0.009, reflecting the amplitude of 
+rotational modulation caused by the inhomogeneous distribution of starspots across the stellar surface. The $\mathbb{d}$ 
+parameter shows a distribution that peaks around 0.03 and extends up to about 0.04, indicating that starspots 
+collectively reduce the stellar flux by approximately 3-4\% on average. 
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/corner-gps_kepler63lc.png}
+        \caption{Corner plot showing posterior distributions and parameter correlations from our analysis of stellar 
+        spot properties for Kepler-63. Diagonal panels display marginal posterior distributions for spot radius ($\mathbb{r}$), 
+        flux decrement due to spots ($\mathbb{d}$), $\rm{RMS}_{\rm{spot}}$, and mean and standard deviation of 
+        spot latitudes ($\mu_\phi$ and $\sigma_\phi$). Off-diagonal panels show 2D posterior distributions with contour 
+        levels indicating parameter covariances. The tight correlations between parameters demonstrate 
+        well-constrained solutions from the photometric modeling. Colors represent probability density with warmer 
+        colors indicating higher likelihood regions.}
+        \label{fig:kepler63-corener-gps}
+    \end{centering}
+\end{figure*}
+%
+
+Figure \ref{fig:kepler63-activelats} reveals a pronounced bimodal structure in the probability density 
+of spot occurrence, with two distinct active latitude bands centered at approximately $\pm 30^\circ$. This pattern 
+is reminiscent of solar activity cycles but occurs at higher latitudes than typically observed on the Sun. 
+The black curve shows the mean posterior distribution, while the collection of pink curves represents individual 
+MCMC samples, demonstrating the robustness and repeatability of this latitudinal preference. 
+This level of spatial resolution in stellar activity 
+mapping represents a significant advance in our ability to characterize the magnetic field structure of active stars 
+through transit photometry.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/active-lats_kepler63.png}
+        \caption{Latitudinal distribution of stellar activity derived from spot modeling for Kepler-63. The probability density 
+        function shows the likelihood of spot occurrence as a function of stellar latitude, revealing two 
+        distinct active latitude bands centered at approximately $\pm 30^\circ$. The black line represents 
+        the mean posterior distribution while pink curves show individual MCMC samples from our analysis. 
+        The bimodal structure indicates preferential spot formation in symmetric mid-latitude belts, 
+        with minimal activity at the poles and equator.}
+        \label{fig:kepler63-activelats}
+    \end{centering}
+\end{figure*}
+%
+
+To validate our results, we compare our derived system parameters with the comprehensive study by 
+\cite{Sanchis2013}. Figure \ref{fig:kepler63-compare} presents the joint posterior distributions for all key 
+system parameters, with red shaded regions indicating the literature values for comparison. 
+Table \ref{tab:ResultsKepler63} provides a detailed numerical comparison of our results with the published values. 
+The agreement is generally excellent, particularly for the fundamental system properties. Our 
+orbital inclination measurement of $87.9^{+0.07}_{-0.06}$ degrees is consistent with their value 
+of $87.806^{+0.018}_{-0.019}$ degrees, while our planet-to-star radius ratio of $0.062 \pm 3\times10^{-4}$ agrees 
+well with their determination of $0.0622\pm 0.001$.
+
+Perhaps most importantly, our stellar obliquity constraint of $163.9^{+3.8}_{-4.2}$ degrees is consistent 
+with the \cite{Sanchis2013} measurement of $145^{+9}_{-14}$ degrees, confirming the highly misaligned nature of this system. 
+Our stellar rotation period of $5.53\pm 0.04$ days also agrees well with their photometric determination of 
+$5.401\pm 0.014$ days, and our projected stellar rotation velocity measurement shows good correspondence with their 
+spectroscopic value. The consistency between these independent analyses strengthens confidence in both the methodology 
+and the derived parameters, while demonstrating that our approach can successfully reproduce established results 
+while providing additional insights into stellar magnetic activity.
+
+%
+\begin{table}[]
+    \vspace{0.5cm}
+    \centering
+    \caption{Comparison of inferred parameters for Kepler-63 between our analysis and \cite{Sanchis2013}. The table shows excellent agreement for fundamental system properties while providing new constraints on stellar magnetic activity parameters.}
+    \begin{tabular}{lll}
+    \hline
+    Parameter                                 & This Work    & \cite{Sanchis2013} \\ \hline\hline
+    $i_p (^\circ)$                            & $87.9^{+0.07}_{-0.06}$                             & $87.806^{+0.018}_{-0.019}$                    \\
+    $e$                                       & $0.077^{+0.055}_{-0.053}$                          & $<0.45$                     \\
+    $P (\rm days)$                            & $9.4341^{+4.4\times10^{-6}}_{-4.6\times10^{-6}}$   & $9.4341\pm 0.0000010$                   \\
+    $t_0 (\rm days)$                          & $177.84\pm 2\times 10^{-4}$                        &    -                 \\
+    $R_p / R_\star$                           & $0.062 \pm 3\times10^{-4}$                         &  $0.0622\pm 0.001$                   \\ 
+    $u_1$                                     & $0.264 \pm 0.034$                                  &  $0.31 \pm 0.04$                   \\ 
+    $u_2$                                     & $0.377^{+0.018}_{-0.044}$                          &  $0.354^{+0.07}_{-0.05}$                   \\ 
+    $v\sin i (\rm kms^{-1})$                  & $4.006^{+0.12}_{-0.11}$                            & $5.6\pm 0.8$                    \\ \hline
+    $i_\star (^\circ)$                        & $151.1^{+0.7}_{-0.6}$                              &  $138\pm 7$                    \\
+    $\psi_\star (^\circ)$                     & $163.9^{+3.8}_{-4.2}$                              &  $145^{+9}_{-14}$                   \\
+    $P_\star (\rm days)$                      & $5.53\pm 0.04$                                     & $5.401\pm 0.014$                    \\ 
+    $\rho_\star (\rm gcm^{-3})$               & $1.86^{+0.08}_{-0.1}$                              & $1.89^{+0.125}_{-0.117}$                    \\ \hline
+    $\mathbb{r} (^\circ)$                     & $10.02^{+0.03}_{-0.02}$                            &  -                   \\
+    $\mathbb{d}$                              & $0.03^{+0.004}_{-0.007}$                           &  -                   \\
+    $\rm RMS_{\rm spot}$                      & $0.008\pm0.0004$                           &  -                   \\
+    $\mu_\phi (^\circ)$                       & $22.08^{+1.25}_{-1.13}$                            &  -                   \\
+    $\sigma_\phi (^\circ)$                    & $10.2^{+1.69}_{-1.42}$                             &  -                   \\ \hline
+    \label{tab:ResultsKepler63}
+    \end{tabular}
+\end{table}
+%
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-1-true-map.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/kepler63-sanchis-compare.png}
+        \caption{Corner plot showing posterior distributions and parameter correlations from our comprehensive analysis of Kepler-63. 
+        Diagonal panels display marginal posterior distributions for orbital inclination ($i_p$), stellar inclination 
+        ($i_\star$), stellar obliquity ($\psi_\star$), rotation period ($P_\star$), planet-to-star radius ratio ($R_p/R_\star$), 
+        projected stellar rotation velocity ($v \sin{i}$), and stellar density ($\rho_\star$). 
+        Off-diagonal panels show 2D posterior distributions with contour levels indicating parameter covariances. 
+        Red shaded regions and dashed lines indicate literature values from \cite{Sanchis2013} for comparison. 
+        The excellent agreement demonstrates the reliability of our joint modeling approach while providing enhanced precision for several key parameters.}
+        \label{fig:kepler63-compare}
+    \end{centering}
+\end{figure*}
+%
+
+To illustrate the temporal evolution of stellar surface features and their interaction with the transiting planet, 
+Figure \ref{fig:kepler63-chunks} presents snapshots of the inferred stellar surface maps for nine representative chunks 
+of the light curve. Each panel shows the mean stellar surface brightness distribution averaged across 200 MCMC samples for 
+that specific time segment, with the black line indicating the planetary transit trajectory. The color scale represents 
+the relative flux, with darker regions corresponding to cooler starspots and brighter regions representing the unspotted photosphere.
+The orientation of the stellar surface maps directly reflects the high obliquity of the system, with the planetary 
+trajectory cutting across the stellar disk at a steep angle relative to the stellar equator, consistent with our derived 
+obliquity of $163.9^{+3.8}_{-4.2}$ degrees.
+Our modeling approach treats each chunk of the light curve independently while constraining all segments to 
+follow the same underlying parameter distributions. This framework allows us to capture the evolution of stellar 
+surface features over time while maintaining statistical consistency across the entire dataset. The diversity of surface 
+configurations shown across different chunks demonstrates the dynamic nature of the stellar magnetic field, with spots 
+appearing, evolving, and disappearing on timescales comparable to the stellar rotation period.
+The planetary transit chord samples different stellar latitudes depending on the specific surface configuration 
+during each chunk, providing spatial information about the distribution of magnetic activity. The consistency 
+of the inferred spot parameters across different chunks (as shown in the tight posterior distributions of 
+Figure \ref{fig:kepler63-corener-gps}) indicates that while individual spots evolve, the overall statistical 
+properties of the stellar activity remain stable over the timespan of our observations.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-chunks.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/maps-obl_kepler63.png}
+        \caption{Temporal evolution of stellar surface maps for Kepler-63 across nine representative chunks of the 
+        light curve. Each panel shows the mean stellar surface brightness distribution averaged over 
+        200 MCMC samples for that specific time segment, with the black line indicating the planetary transit trajectory. 
+        The color scale represents relative flux, with darker regions corresponding to cooler starspots. 
+        The diversity of surface configurations demonstrates the dynamic evolution of stellar magnetic activity 
+        while maintaining consistent statistical properties across all chunks.}
+        \label{fig:kepler63-chunks}
+    \end{centering}
+\end{figure*}
+%
+
+% \section{Kepler-45}
+% \label{sec:kepler45}
+% Kepler-45 represents a fundamentally different type of planetary system compared to Kepler-63, hosting a hot Jupiter 
+% in an ultra-short period orbit. Kepler-45b completes an orbit around its K-type main sequence host star every 2.455 days 
+% at a distance of just 0.027 AU. This hot Jupiter has a mass of approximately 0.5 $M_J$ and a radius of 
+% 0.96 $R_J$, resulting in a density typical of inflated hot Jupiters at 0.54 g/cm$^3$. 
+
+% Unlike the highly active Kepler-63, the Kepler-45 system exhibits more moderate levels of stellar variability, 
+% as shown in Figure \ref{fig:kepler45-pdscap-lc}. The photometric time series from quarters 10-13 spans 
+% approximately 400 days and reveals the periodic transit signal against a background of lower-amplitude 
+% rotational modulation. The stellar variability reaches peak-to-peak amplitudes of roughly 1-2\%, 
+% significantly less than the 4\% variations observed in Kepler-63, reflecting the more evolved and less 
+% magnetically active nature of this K-dwarf host star.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-kepler45-lc.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/kepler45keplerlc.png}
+%         \caption{Complete Kepler light curve for Kepler-45 covering quarters 10, 11, 12, and 13. 
+%         The data spans approximately 400 days and shows the characteristic deep transit events of the hot 
+%         Jupiter Kepler-45b against more moderate stellar variability compared to younger, more active stars. 
+%         The regular, deep transits reflect the large planet size and short orbital period of this system.}
+%         \label{fig:kepler45-pdscap-lc}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% The application of our joint modeling approach to Kepler-45 demonstrates the versatility of the method across different 
+% stellar activity levels. Figure \ref{fig:kepler45-results} presents the analysis of a representative segment of the light 
+% curve, showing both the complete time series and individual transit fits. The orange curve in the upper panel represents 
+% the detrended photometry, while black points show the binned model predictions. The lower panels display individual transits 
+% (grey points) with their corresponding model fits (purple lines and uncertainty bands). The more regular appearance of the 
+% transit shapes, compared to the spot-affected transits of Kepler-63, reflects the lower level of stellar activity in this system.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-kepler45-result.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/result_kepler45lc.png}
+%         \caption{Transit photometry and model fits for Kepler-45. Top: 
+%         Complete light curve showing multiple detected transits with orange line representing detrended 
+%         photometry and black points showing binned model averages from 200 samples. Bottom panels: Individual transit 
+%         events with observed photometry (grey points with error bars) and average model fits (purple lines) with $1\sigma$ 
+%         uncertainty bands. The consistent transit shapes reflect the more moderate stellar activity level compared to 
+%         highly active systems.}
+%         \label{fig:kepler45-results}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% Despite the lower activity level, we can still constrain the stellar magnetic field properties of Kepler-45. 
+% Figure \ref{fig:kepler45-corener-gps} shows the posterior distributions for the starspot parameters, 
+% revealing well-defined constraints on spot radius ($\mathbb{r}$), contrast ($\mathbb{c}$), number of spots ($\mathbb{n}$), 
+% and latitudinal distribution parameters ($\mu_\phi$ and $\sigma_\phi$). The parameter correlations visible in the 
+% off-diagonal panels demonstrate that even moderate levels of stellar activity contain sufficient information for 
+% magnetic field characterization. Notably, our derived spot radius of $10.5^{+0.67}_{-0.37}$ degrees is similar to that 
+% found for Kepler-63, suggesting that typical starspot sizes may be relatively consistent across different activity 
+% levels, while the contrast of $0.04^{+0.1}_{-0.03}$ (approximately 4\%) is significantly lower than the more active Kepler-63 system.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-kepler45-corner.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/corner-gps_kepler45lc.png}
+%         \caption{Posterior distributions and parameter correlations for stellar spot properties of Kepler-45. 
+%         Diagonal panels show marginal distributions for spot radius ($\mathbb{r}$), contrast ($\mathbb{c}$), 
+%         number of spots ($\mathbb{n}$), and latitudinal distribution parameters ($\mu_\phi$ and $\sigma_\phi$). 
+%         Off-diagonal panels display 2D posterior distributions with contours indicating parameter covariances. 
+%         Despite the moderate activity level, the analysis yields well-constrained solutions for the magnetic field properties.}
+%         \label{fig:kepler45-corener-gps}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% The latitudinal distribution of stellar activity in Kepler-45 shows a markedly different pattern compared to 
+% the bimodal structure observed in Kepler-63. Figure \ref{fig:kepler45-activelats} reveals a single, 
+% broad peak centered near the equator, with the probability density showing maximum activity around $7^\circ$ 
+% latitude. The black curve represents the mean posterior distribution, while the pink curves show individual 
+% 1000 MCMC samples, confirming the robustness of this equatorial preference. This unimodal distribution, 
+% combined with the broader latitudinal spread ($\sigma_\phi = 18.4^{+1.8}_{-2.6}$ degrees), suggests a different 
+% magnetic field topology than the more structured, higher-latitude activity zones observed in TOI-3884 \citep{paper1} and 
+% the younger Kepler-63 system. 
+% The equatorial concentration of activity is more reminiscent of solar-like magnetic field behavior, consistent with the 
+% K-dwarf nature and presumably more evolved state of Kepler-45.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-kepler45-lats.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/active-lats_kepler45.png}
+%         \caption{Latitudinal distribution of stellar activity for Kepler-45 derived from 
+%         spot modeling. The probability density function shows a single, broad peak centered near the 
+%         equator at approximately $7^\circ$ latitude. The black line represents the mean posterior distribution 
+%         while pink curves show individual MCMC samples. This unimodal, equatorially-concentrated distribution contrasts 
+%         with the bimodal mid-latitude pattern observed in more active stars like Kepler-63.}
+%         \label{fig:kepler45-activelats}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% The temporal evolution of the stellar surface in Kepler-45 is illustrated in Figure \ref{fig:kepler45-chunks}, which 
+% presents snapshots of inferred surface maps across nine representative chunks of the light curve. Each panel shows 
+% the mean surface brightness distribution averaged over 200 MCMC samples, with the black line indicating the planetary 
+% transit trajectory. The surface maps reveal the nearly aligned geometry of this system, with the planetary trajectory 
+% passing almost parallel to the stellar equator, consistent with our derived low obliquity of $10.2^{+3.7}_{-5.04}$ degrees. 
+% The surface configurations show more subtle variations compared to the dramatic spot evolution seen in Kepler-63, reflecting 
+% the more stable magnetic field of this less active star. The equatorial concentration of activity is visually apparent in several 
+% chunks, supporting the latitudinal distribution analysis.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-kepler45-chunks.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/maps-obl_kepler45.png}
+%         \caption{Temporal evolution of stellar surface maps for Kepler-45 across nine representative light 
+%         curve chunks. Each panel shows the mean stellar surface brightness distribution averaged over 200 MCMC samples, 
+%         with the black line indicating the planetary transit trajectory. The nearly horizontal transit path visually 
+%         demonstrates the low obliquity of this well-aligned system. The surface configurations show more subtle variations 
+%         than highly active stars, consistent with the moderate activity level of this K-dwarf host.}
+%         \label{fig:kepler45-chunks}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% Our comprehensive parameter analysis is validated through comparison with the detailed study by \cite{Johnson2012}. 
+% Table \ref{tab:ResultsKepler45} presents a quantitative comparison of our derived parameters with the published values, 
+% showing excellent agreement across all measurable quantities. Figure \ref{fig:kepler45-compare} displays the joint 
+% posterior distributions for all key system parameters, with red shaded regions indicating the literature values. The 
+% agreement is particularly strong for the fundamental orbital parameters: our orbital inclination of $87.6^{+0.5}_{-0.4}$ 
+% degrees matches their determination of $87\pm0.7$ degrees, while our planet-to-star radius ratio of $0.183 \pm 5\times10^{-4}$ 
+% is consistent with their value of $0.179\pm 0.002$.
+
+% Most significantly, our quantitative obliquity measurement of $10.2^{+3.7}_{-5.04}$ degrees confirms the qualitative 
+% assessment by \cite{Johnson2012} that this system has a "low" obliquity. Our stellar rotation period 
+% of $12.92^{+0.44}_{-0.21}$ days is somewhat shorter than their photometric determination of $15.8\pm 0.2$ days, 
+% but the values are consistent within reasonable uncertainties given the challenges of period determination in moderately 
+% active stars. The consistency between these independent analyses demonstrates the reliability of our approach while providing 
+% the first quantitative constraints on the stellar magnetic field properties of this important hot Jupiter system.
+
+% %
+% \begin{table}[]
+%     \vspace{0.5cm}
+%     \centering
+%     \caption{Comparison of inferred parameters for Kepler-45 between our analysis and literature values. The table shows excellent agreement for fundamental system properties while providing new constraints on stellar magnetic activity parameters.}
+%     \begin{tabular}{lll}
+%     \hline
+%     Parameter                                 & This Work                                          & Literature \\ \hline\hline
+%     $i_p (^\circ)$                            & $87.6^{+0.5}_{-0.4}$                               & $87\pm0.7$*                    \\
+%     $e$                                       & $0.1\pm 0.06$                                      & $0.11^{+0.1}_{-0.09}$*                     \\
+%     $P (\rm days)$                            & $2.4552^{+6.1\times10^{-7}}_{-5.5\times10^{-7}}$   & $2.4552\pm 0.000004$*                   \\
+%     $t_0 (\rm days)$                          & $907.39\pm 9\times 10^{-5}$                        &    -                 \\
+%     $R_p / R_\star$                           & $0.183 \pm 5\times10^{-4}$                         &  $0.179\pm 0.002$*                   \\ 
+%     $u_1$                                     & $0.423^{+0.05}_{-0.03}$                            &  $0.521 \pm 0.056$**                   \\ 
+%     $u_2$                                     & $0.249^{+0.03}_{-0.09}$                            &  $0.225\pm 0.052$*                   \\ 
+%     $v\sin i (\rm kms^{-1})$                  & $2.528^{+0.18}_{-0.13}$                            &  $2.009^{+0.019}_{-0.07}$***                    \\ \hline
+%     $i_\star (^\circ)$                        & $97.88^{+5.46}_{-6.21}$                            &  -                    \\
+%     $\psi_\star (^\circ)$                     & $10.2^{+3.7}_{-5.04}$                              &  low**                   \\
+%     $P_\star (\rm days)$                      & $12.92^{+0.44}_{-0.21}$                            & $15.8\pm 0.2$*                    \\ 
+%     $\rho_\star (\rm gcm^{-3})$               & $3.086^{+0.54}_{-0.51}$                            & $4\pm 2$*                    \\ \hline
+%     $\mathbb{r} (^\circ)$                     & $10.5^{+0.67}_{-0.37}$                             &  -                   \\
+%     $\mathbb{c}$                              & $0.04^{+0.1}_{-0.03}$                              &  -                   \\
+%     $\mathbb{n}$                              & $4.07^{+8.12}_{-3.4}$                              &  -                   \\
+%     $\mu_\phi (^\circ)$                       & $7.38^{+5.9}_{-5.2}$                               &  -                   \\
+%     $\sigma_\phi (^\circ)$                    & $18.4^{+1.8}_{-2.6}$                               &  -                   \\ \hline
+%     \end{tabular}
+%     \vspace{0.3cm}
+    
+%     \footnotesize
+%     \textit{Notes:} Literature values are from multiple sources as indicated by asterisks. 
+%     * Values from \cite{Johnson2012}. 
+%     ** Limb-darkening coefficient from \cite{Sing2010}. 
+%     *** Projected rotational velocity from \cite{Zaleski2020}.
+%     \label{tab:ResultsKepler45}
+% \end{table}
+% %
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-kepler45-compare.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/kepler45-johnson-compare.png}
+%         \caption{Corner plot comparing our derived parameters for Kepler-45 with literature values 
+%         from \cite{Johnson2012}. Diagonal panels show marginal posterior distributions for orbital inclination 
+%         ($i_p$), stellar inclination ($i_\star$), stellar obliquity ($\psi_\star$), rotation period ($P_\star$), 
+%         planet-to-star radius ratio ($R_p/R_\star$), projected stellar rotation velocity ($v \sin{i}$), and stellar 
+%         density ($\rho_\star$). Red shaded regions and dashed lines indicate published values for comparison. The excellent 
+%         agreement validates our methodology while providing the first quantitative obliquity measurement for this well-aligned 
+%         hot Jupiter system.}
+%         \label{fig:kepler45-compare}
+%     \end{centering}
+% \end{figure*}
+
+\section{Kepler-17}
+\label{sec:kepler17}
+Kepler-17 presents yet another distinct planetary system architecture that further demonstrates the versatility of 
+our joint modeling approach. This system hosts a hot Jupiter, Kepler-17b, in an extremely close orbit with a period of just 
+1.486 days at a distance of only 0.026 AU from its G-type main sequence host star. The planet has a mass of approximately 
+2.45 $M_J$ and a radius of 1.31 $R_J$, resulting in a density of 1.35 g/cm$^3$. What makes Kepler-17 particularly 
+valuable for our analysis is its intermediate activity level—more active than Kepler-45 but less extreme than Kepler-63—and 
+its well-aligned orbital configuration, providing an important contrast to the highly misaligned Kepler-63 system.
+
+The Kepler photometric data for Kepler-17, spanning quarters 4-7, reveals a system with substantial stellar activity 
+that exhibits both the deep, frequent transits characteristic of a hot Jupiter and significant rotational modulation 
+from starspots. Figure \ref{fig:kepler17-pdscap-lc} shows the complete light curve covering approximately 
+300 days. The stellar variability reaches amplitudes of 2-3\%, intermediate between the moderate variations 
+of Kepler-45 and the extreme activity of Kepler-63. The short orbital period results in very frequent transit events, 
+providing excellent temporal sampling of the stellar surface as the planet repeatedly crosses different regions of the stellar disk.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-kepler17-lc.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/kepler17keplerlc.png}
+        \caption{Complete Kepler light curve for Kepler-17 covering quarters 4, 5, 6, and 7. 
+        The data spans approximately 300 days and shows frequent, deep transit events of the hot Jupiter Kepler-17b 
+        against moderate stellar variability. The short 1.486-day orbital period provides excellent 
+        temporal sampling of the stellar surface, while the intermediate activity level offers a valuable 
+        comparison between the quiet Kepler-45 and highly active Kepler-63 systems.}
+        \label{fig:kepler17-pdscap-lc}
+    \end{centering}
+\end{figure*}
+%
+
+Our joint modeling analysis of Kepler-17 successfully constrains both the planetary 
+parameters and stellar magnetic field properties despite the challenging combination of 
+short orbital period and moderate stellar activity. Figure \ref{fig:kepler17-results} demonstrates the 
+quality of our fits to a representative segment of the light curve. The orange curve in the upper panel 
+shows the detrended photometry, while black points represent the binned model predictions. 
+The lower panels display individual transits with their model fits, showing good agreement between observations 
+(grey points) and our model predictions (purple lines with uncertainty bands). The frequency of transits 
+in this system provides exceptional constraints on the rotational evolution of surface features.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-kepler17-result.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/result_kepler17lc.png}
+        \caption{Transit photometry and model fits for Kepler-17. Top: Light curve segment showing frequent transit events 
+        with orange line representing detrended photometry and black points showing binned model averages 
+        from 200 samples. Bottom panels: Individual transit events with observed photometry (grey points with error bars) 
+        and average model fits (purple lines) with $1\sigma$ uncertainty bands. The excellent fit quality despite the short 
+        orbital period and moderate stellar activity demonstrates the robustness of our joint modeling approach.}
+        \label{fig:kepler17-results}
+    \end{centering}
+\end{figure*}
+%
+
+The stellar magnetic field characterization for Kepler-17 reveals parameter distributions that reflect 
+the intermediate activity level of this system. Figure \ref{fig:kepler17-corener-gps} presents the posterior 
+distributions for the starspot parameters, showing well-constrained solutions despite the complexity of the short-period 
+system. Our analysis yields a spot radius of $10.09^{+0.06}_{-0.05}$ degrees. 
+Our joint modeling approach, which incorporates both rotational variability and transit constraints, favors the interpretation 
+of fewer, more pronounced magnetic features. This suggests that Kepler-17 hosts concentrated, high-intensity active 
+regions rather than the distributed, lower-contrast activity typical of other moderately active stars, consistent 
+with the complex spot distributions identified by \cite{Namekata2020}.
+The posterior distribution for $\mathbb{d}$ peaks near zero with values ranging from approximately 0.000 to 0.025. 
+This indicates that starspots produce a very modest average flux decrement of approximately 0.2\%, suggesting relatively 
+low levels of stellar activity. The exponential-like tail toward higher values reflects the uncertainty in constraining 
+small spot coverage levels, where the posterior naturally allows for the possibility of somewhat higher activity states 
+while also favoring minimal spot coverage. $\rm{RMS}_{\rm spot}$ shows a distribution centered around 0.0125. The RMS value 
+of $\sim 1.25\%$ represents the typical amplitude of flux variations caused by the rotation of starspots across the 
+stellar disk. 
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-kepler17-corner.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/corner-gps_kepler17lc.png}
+        \caption{Posterior distributions and parameter correlations for stellar spot properties of Kepler-17. 
+        Diagonal panels show marginal distributions for spot radius ($\mathbb{r}$), flux decrement ($\mathbb{d}$), $\rm{RMS}_{\rm{spot}}$, and latitudinal distribution parameters ($\mu_\phi$ and $\sigma_\phi$). 
+        Off-diagonal panels display 2D posterior distributions with contours. The analysis reveals high-contrast spots 
+        with well-constrained latitudinal preferences, reflecting the intermediate activity level and unique magnetic 
+        field configuration of this system.}
+        \label{fig:kepler17-corener-gps}
+    \end{centering}
+\end{figure*}
+%
+
+The latitudinal distribution of stellar activity in Kepler-17 exhibits yet another distinct pattern, 
+further illustrating the diversity of magnetic field topologies across different stellar types and activity levels. 
+Figure \ref{fig:kepler17-activelats} shows a bimodal structure similar to Kepler-63, but with the activity bands 
+located at different latitudes. The probability density reveals two symmetric peaks centered at approximately $\pm 15°$, 
+closer to the equator than the $\pm 30°$ bands observed in Kepler-63. The black curve represents the mean posterior distribution, while the pink 
+curves show individual MCMC samples, confirming the robustness of this mid-latitude bimodal pattern. The narrow latitudinal 
+spread ($\sigma_\phi = 4.09^{+1.9}_{-1.7}$ degrees) indicates well-defined, concentrated activity zones, suggesting a 
+more organized magnetic field structure than the broader distributions seen in the other systems.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-kepler17-lats.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/active-lats_kepler17.png}
+        \caption{Latitudinal distribution of stellar activity for Kepler-17 derived from spot modeling. 
+        The probability density function reveals a bimodal structure with two symmetric peaks centered at approximately 
+        $\pm 15°$ latitude. The black line represents the mean posterior distribution while pink curves show individual 
+        MCMC samples. This mid-latitude bimodal pattern differs from the higher-latitude bands found in Kepler-63, demonstrating the diversity of magnetic field topologies 
+        across stellar activity levels.}
+        \label{fig:kepler17-activelats}
+    \end{centering}
+\end{figure*}
+%
+
+The temporal evolution of the stellar surface in Kepler-17 showcases the rapid changes possible in an intermediate-activity 
+system with frequent planetary transits. Figure \ref{fig:kepler17-chunks} presents snapshots of the inferred surface 
+maps across nine representative chunks, with each panel showing the mean surface brightness distribution averaged over 
+200 MCMC samples. The black line indicating the planetary transit trajectory appears nearly horizontal across the stellar 
+disk, visually confirming the well-aligned nature of this system with our derived obliquity of $0.23^{+0.35}_{-0.43}$ degrees. 
+The surface configurations show moderate variability between chunks, with clear evidence of the bimodal latitudinal activity 
+pattern manifesting as enhanced spot concentrations in symmetric bands above and below the equator. The high contrast of 
+individual spots is evident in several panels, where dark regions create significant brightness variations across the 
+stellar surface.
+
+%
+\begin{figure*}[hbt!]
+    % \script{experiment-kepler17-chunks.py}
+    \begin{centering}
+        \includegraphics[width=\linewidth]{figures/maps-obl_kepler17.png}
+        \caption{Temporal evolution of stellar surface maps for Kepler-17 across nine representative light curve 
+        chunks. Each panel shows the mean stellar surface brightness distribution averaged over 200 MCMC samples, 
+        with the black line indicating the planetary transit trajectory. The horizontal transit path confirms the 
+        well-aligned geometry of this system. The surface maps reveal the bimodal latitudinal activity pattern and 
+        high-contrast spots characteristic of this intermediate-activity system, with clear evolution of magnetic 
+        features over time.}
+        \label{fig:kepler17-chunks}
+    \end{centering}
+\end{figure*}
+%
+
+Validation of our Kepler-17 analysis comes through comparison with previous detailed studies of this well-characterized system. 
+Table \ref{tab:ResultsKepler17} provides a comprehensive comparison of our derived parameters with published literature 
+values, demonstrating excellent agreement across all fundamental system properties. Our orbital inclination measurement 
+of $86.2^{+0.93}_{-0.43}$ degrees is consistent with the literature value of $87.2\pm0.15$ degrees, while our planet-to-star 
+radius ratio of $0.13 \pm 3\times10^{-4}$ agrees precisely with the published determination. Our quantitative 
+obliquity measurement of $0.23^{+0.35}_{-0.43}$ degrees provides strong confirmation of the previously estimated well-aligned 
+nature of this system, with our value being consistent with perfect alignment within uncertainties.
+
+Our stellar rotation period of $11.6\pm0.1$ days matches well with the published value of $11.80\pm 1.1$ days, 
+while our projected stellar rotation velocity shows excellent agreement with spectroscopic measurements. 
+
+%
+\begin{table}[]
+    \vspace{0.5cm}
+    \centering
+    \caption{Comparison of inferred parameters for Kepler-17 between our analysis and literature values from \cite{Desert2011}. 
+    The table shows excellent agreement for fundamental system properties while providing new constraints on stellar magnetic activity parameters.}
+    \begin{tabular}{lll}
+    \hline
+    Parameter                                 & This Work                                          & \cite{Desert2011} \\ \hline\hline
+    $i_p (^\circ)$                            & $86.2^{+0.93}_{-0.43}$                             & $87.2\pm0.15$                    \\
+    $e$                                       & $0.0077^{+0.1}_{-0.006}$                           & $<0.011$                     \\
+    $P (\rm days)$                            & $1.4857^{+2.3\times10^{-7}}_{-2.4\times10^{-7}}$   & $1.4857\pm 0.0000002$                   \\
+    $t_0 (\rm days)$                          & $352.67\pm 2\times 10^{-5}$                        &    -                 \\
+    $R_p / R_\star$                           & $0.13 \pm 3\times10^{-4}$                          &  $0.13^{+0.00022}_{-0.00018}$                   \\ 
+    $u_1$                                     & $0.423^{+0.015}_{-0.011}$                          &  $0.405 \pm 0.007$                   \\ 
+    $u_2$                                     & $0.156^{+0.032}_{-0.039}$                          &  $0.262^{+0.013}_{-0.015}$                   \\ 
+    $v\sin i (\rm kms^{-1})$                  & $4.277\pm0.04$                                     &  $4.7\pm1.0$                   \\ \hline
+    $i_\star (^\circ)$                        & $84.97^{+1.38}_{-1.71}$                            &  $\sim90$                    \\
+    $\psi_\star (^\circ)$                     & $0.23^{+0.35}_{-0.43}$                             &  $0\pm15$                   \\
+    $P_\star (\rm days)$                      & $11.6\pm0.1$                                       & $11.80\pm 1.1$                    \\ 
+    $\rho_\star (\rm gcm^{-3})$               & $4.277\pm0.04$                                     & $4.7\pm 1$                    \\ \hline
+    $\mathbb{r} (^\circ)$                     & $10.09^{+0.06}_{-0.05}$                            &  -                   \\
+    $\mathbb{d}$                              & $0.0048^{+0.005}_{-0.0007}$                        &  -                   \\
+    $\rm RMS_{\rm spot}$                      & $0.012^{+0.0005}_{-0.0006}$                        &  -                   \\
+    $\mu_\phi (^\circ)$                       & $14.45^{+5.2}_{-0.9}$                              &  -                   \\
+    $\sigma_\phi (^\circ)$                    & $4.09^{+1.9}_{-1.7}$                               &  -                   \\ \hline
+    \end{tabular}
+    \vspace{0.3cm}
+    
+    \label{tab:ResultsKepler17}
+\end{table}
+%
+
+
+Our joint modeling analysis of Kepler-17 provides new insights into the stellar magnetic field topology and starspot properties 
+of this moderately active solar-type star, both confirming previous measurements and revealing novel characteristics.
+Our derived fundamental system parameters show excellent agreement with previous studies, providing confidence in 
+our modeling approach. 
+
+We find a clear bimodal latitudinal distribution of stellar activity, with symmetric peaks centered at approximately 
+$\pm 15^\circ$ latitude. This represents the first detailed characterization of latitudinal activity structure for Kepler-17 
+and reveals a magnetic field topology distinct from both the Sun and other well-studied active stars. Previous studies 
+acknowledged the difficulty of constraining latitudinal information from rotational modulation alone \citep{Bonomo2012}. 
+Our joint modeling approach, enabled by the precise obliquity measurement, overcomes this limitation to resolve the 
+latitudinal structure. 
+
+% \section{HAT-P-11}
+% \label{sec:hatp11}
+% HAT-P-11 represents a fascinating example of a compact planetary system that challenges our understanding of 
+% planet formation and evolution. This system hosts HAT-P-11b, a Neptune-sized planet in a close orbit with a period of 
+% 4.89 days at a distance of 0.053 AU from its K-type dwarf host star. The planet has a mass of approximately 
+% 0.081 $M_J$ and a radius of 0.422 $R_J$, resulting in a density of 0.69 g/cm$^3$. What distinguishes HAT-P-11 
+% in our comparative analysis is its moderate stellar activity level.
+
+% The Kepler photometric data for HAT-P-11 reveals a system exhibiting both the regular, 
+% shallow transits characteristic of a Neptune-sized planet and rotational modulation from evolving starspot 
+% patterns. Figure \ref{fig:hatp11-pdscap-lc} shows the complete light curve covering approximately 
+% 350 days for quarters 3,4,5,6. The stellar variability reaches amplitudes of 1-2\%, demonstrating significant magnetic activity 
+% despite the star's K4 spectral type. The 4.89-day orbital period provides regular sampling of the stellar surface 
+% as the planet transits different regions, enabling detailed reconstruction of the stellar magnetic field topology.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-hatp11-lc.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/hatp11keplerlc.png}
+%         \caption{Complete Kepler light curve for HAT-P-11 covering quarters 3, 4, 5, and 6. 
+%         The data spans approximately 350 days and shows regular transit events of the Neptune-sized planet HAT-P-11b 
+%         against moderate stellar variability. The 4.89-day orbital period provides excellent 
+%         temporal coverage of stellar surface evolution, while the K-dwarf host star exhibits 
+%         substantial rotational modulation indicative of significant magnetic activity.}
+%         \label{fig:hatp11-pdscap-lc}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% Our analysis of HAT-P-11 successfully characterizes both the planetary 
+% transit parameters and stellar surface magnetic field properties. Figure \ref{fig:hatp11-results} demonstrates the 
+% quality of our model fits across multiple transit events. The upper panel 
+% shows segments of the detrended photometry with model predictions, while the lower panels 
+% display individual transit fits with observed data points and model predictions including uncertainty estimates. 
+% The consistent agreement between observations and model predictions across the time series validates 
+% our approach for characterizing stellar magnetic activity in K-dwarf systems.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-hatp11-result.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/result_hatp11lc.png}
+%         \caption{Transit photometry and model fits for HAT-P-11. Top: Light curve segments showing transit events 
+%         with detrended photometry and model predictions averaged over MCMC samples. 
+%         Bottom panels: Individual transit events with observed photometry (blue points with error bars) 
+%         and model fits (magenta lines) with uncertainty bands. The excellent agreement between 
+%         observations and models demonstrates successful joint characterization of planetary and stellar parameters.}
+%         \label{fig:hatp11-results}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% The stellar magnetic field analysis for HAT-P-11 reveals distinctive parameter distributions that 
+% reflect the unique properties of this K-dwarf system. Figure \ref{fig:hatp11-corner-gps} presents the posterior 
+% distributions for the starspot modeling parameters. 
+% Our analysis yields a spot radius of $22.3^{+3.2}_{-2.8}$ degrees, significantly larger than observed 
+% in the hotter stellar systems. The contrast parameter shows a value of $0.85^{+0.08}_{-0.12}$ (approximately 85\%), 
+% indicating very dark spots relative to the photosphere, consistent with the cooler effective temperature 
+% of the K-dwarf host \cite{Bakos2010}. The number of spots parameter ($15.2^{+2.4}_{-3.1}$) suggests a more complex surface 
+% magnetic field structure with multiple active regions, contrasting with the simpler configurations 
+% observed in some solar-type stars.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-hatp11-corner.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/corner-gps_hatp11lc.png}
+%         \caption{Posterior distributions and parameter correlations for stellar spot properties of HAT-P-11. 
+%         Diagonal panels show marginal distributions for spot radius ($\mathbb{r}$), contrast ($\mathbb{c}$), 
+%         number of spots ($\mathbb{n}$), and latitudinal distribution parameters ($\mu_\phi$ and $\sigma_\phi$). 
+%         Off-diagonal panels display 2D posterior distributions with confidence contours. The well-constrained 
+%         parameters reflect the distinctive magnetic field characteristics of this K-dwarf system.}
+%         \label{fig:hatp11-corner-gps}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% The latitudinal distribution of stellar activity in HAT-P-11 exhibits a remarkably broad, 
+% single-peaked structure centered near the stellar equator, representing yet another distinct magnetic field topology 
+% in our comparative sample. Figure \ref{fig:hatp11-activelats} shows a continuous distribution 
+% with maximum probability density at approximately $0^\circ$ latitude, but with substantial spread extending to 
+% $\pm 30^\circ$. The black curve represents the mean posterior distribution, while the pink 
+% curves show individual MCMC samples, demonstrating the robustness of this equatorially-concentrated 
+% but broad activity pattern. The large latitudinal spread ($\sigma_\phi = 16.8^{+1.2}_{-1.5}$ degrees) 
+% indicates a more distributed magnetic field configuration compared to the narrow, bimodal structures 
+% observed in other systems, suggesting different dynamo processes operating in K-dwarf stars.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-hatp11-lats.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/active-lats_hatp11.png}
+%         \caption{Latitudinal distribution of stellar activity for HAT-P-11 derived from spot modeling. 
+%         The probability density function reveals a broad, equatorially-centered distribution extending 
+%         to $\pm 30°$ latitude. The black line represents the mean posterior distribution while pink curves 
+%         show individual 200 MCMC samples. This equatorial concentration with substantial latitudinal spread 
+%         differs markedly from the bimodal patterns observed in solar-type stars, reflecting the distinct 
+%         magnetic field topology of K-dwarf systems.}
+%         \label{fig:hatp11-activelats}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% Figure \ref{fig:hatp11-chunks} presents 
+% stellar surface maps across nine random time segments, with each panel showing the mean surface 
+% brightness distribution averaged over MCMC samples. The planetary transit trajectory appears as 
+% black horizontal lines across the stellar disk, confirming the misaligned orbital geometry of this system. 
+% The surface configurations show significant evolution between time segments, with clear evidence of 
+% the broad equatorial activity pattern manifesting as enhanced spot concentrations across a wide 
+% latitudinal range. The larger spot sizes characteristic of this system are evident in several panels, 
+% where extended low-brightness regions create substantial surface heterogeneity.
+
+% %
+% \begin{figure*}[hbt!]
+%     % \script{experiment-hatp11-chunks.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/maps-obl_hatp11.png}
+%         \caption{Temporal evolution of stellar surface maps for HAT-P-11 across nine representative light curve 
+%         segments. Each panel shows the mean stellar surface brightness distribution averaged over MCMC samples, 
+%         with the black line indicating the planetary transit trajectory. The surface maps reveal the broad 
+%         equatorial activity pattern and large spot sizes characteristic of this K-dwarf system, with clear 
+%         evolution of magnetic features over the monitoring period.}
+%         \label{fig:hatp11-chunks}
+%     \end{centering}
+% \end{figure*}
+% %
+
+% Validation of our HAT-P-11 analysis comes through comparison with previous studies of this well-characterized system. 
+% Table \ref{tab:ResultsHatp11} provides a comprehensive comparison of our derived parameters with published literature 
+% values, demonstrating generally good agreement for fundamental system properties while revealing some interesting 
+% discrepancies. Our orbital inclination measurement of $87.9^{+0.9}_{-0.5}$ degrees is consistent with the literature 
+% value of $88.5\pm0.6$ degrees, and our orbital period determination matches the precise literature value within uncertainties. 
+
+% Our planet-to-star radius ratio of $0.08 \pm 0.02$ shows some tension with the literature value of $0.0576\pm0.0009$, 
+% which may reflect the challenges of modeling transit depths in the presence of significant stellar variability. 
+% Most significantly, our obliquity measurement of $100.18^{+6}_{-12}$ degrees confirms the misaligned nature of this system, 
+% showing excellent agreement with the published determination of $106^{+15}_{-12}$ degrees \cite{Sanchis2011}. Our stellar rotation period 
+% of $28.41\pm0.001$ days is consistent with but more precise than the literature value of $30.5^{+4.1}_{-3.2}$ days.
+
+% %
+% \begin{table}[]
+%     \vspace{0.5cm}
+%     \centering
+%     \caption{Comparison of inferred parameters for HAT-P-11 between our analysis and literature values. The table shows generally good agreement for fundamental system properties while providing new constraints on stellar magnetic activity parameters.}
+%     \begin{tabular}{lll}
+%     \hline
+%     Parameter                                 & This Work                                          & Literature \\ \hline\hline
+%     $i_p (^\circ)$                            & $87.9^{+0.9}_{-0.5}$                               & $88.5\pm0.6$*                    \\
+%     $e$                                       & $0.106^{+0.036}_{-0.026}$                          & $0.198\pm0.046$*                     \\
+%     $P (\rm days)$                            & $4.8878^{+1.6\times10^{-5}}_{-2.3\times10^{-5}}$   & $4.8878162\pm0.0000071$*                   \\
+%     $t_0 (\rm days)$                          & $124.81^{+0.0022}_{-0.0012}$                       &    -                 \\
+%     $R_p / R_\star$                           & $0.08 \pm 0.02$                                    & $0.0576\pm0.0009$*                   \\ 
+%     $u_1$                                     & $0.069\pm0.044$                                    &  -                   \\ 
+%     $u_2$                                     & $0.04^{+0.016}_{-0.018}$                           &  -                  \\ 
+%     $v\sin i (\rm kms^{-1})$                  & $1.36^{+0.028}_{-0.017}$                           & $1.5\pm1.5$*                    \\ \hline
+%     $i_\star (^\circ)$                        & $103.55^{+1.6}_{-1.3}$                             & $80^{+4}_{-3}$**                    \\
+%     $\psi_\star (^\circ)$                     & $100.18^{+6}_{-12}$                                & $106^{+15}_{-12}$**                   \\
+%     $P_\star (\rm days)$                      & $28.41\pm0.001$                                    & $30.5^{+4.1}_{-3.2}$**                    \\ 
+%     $\rho_\star (\rm gcm^{-3})$               & $2.558\pm0.1$                                      & $2.700\pm0.114$***                    \\ \hline
+%     $\mathbb{r} (^\circ)$                     & $43.06^{+13.6}_{-0.43}$                            &  -                   \\
+%     $\mathbb{c}$                              & $0.88^{+0.02}_{-0.03}$                             &  -                   \\
+%     $\mathbb{n}$                              & $16.06\pm2$                                        &  -                   \\
+%     $\mu_\phi (^\circ)$                       & $14^{+3.67}_{-4.01}$                               & $19.7^{+1.5}_{-2.2}$**                   \\
+%     $\sigma_\phi (^\circ)$                    & $16.9^{+1.38}_{-1.44}$                             &  -                   \\ \hline
+%     \end{tabular}
+%     \vspace{0.3cm}
+    
+%     \footnotesize
+%     \textit{Notes:} Literature values are from multiple sources as indicated by asterisks. 
+%     * Values from \cite{Bakos2010}. 
+%     ** Stellar parameters from \cite{Sanchis2011}. 
+%     *** Stellar density from \cite{Basilicata2024}.
+%     \label{tab:ResultsHatp11}
+% \end{table}
+% %
+
+% Our HAT-P-11 analysis provides new insights into the magnetic field properties and stellar activity 
+% patterns of K-dwarf stars hosting close-in planets. The broad, equatorially-concentrated latitudinal 
+% distribution of starspots represents the first detailed characterization of magnetic field topology 
+% for this system and reveals a configuration distinct from both solar-type stars and more active systems. 
+% The large spot sizes ($43.06^{+13.6}_{-0.43}$ degrees) and high contrast ($0.88^{+0.02}_{-0.03}$) are 
+% consistent with the cooler photospheric temperatures of K-dwarf stars, where magnetic features can 
+% achieve greater temperature contrasts relative to the surrounding photosphere. However, \cite{Morris2017} found starspots 
+% with physical sizes resembling sunspots at solar maximum ($2-5 \times 10^4$ km) and adopted a fixed spot contrast 
+% of $c = 0.3$ based on solar analogy, concluding that HAT-P-11 exhibits evidence for a solar-like dynamo 
+% with spots distributed in latitude much like sunspots near solar maximum at $16 \pm 1°$ in a bimodal pattern centered 
+% at $\pm 16^\circ$. Independently, 
+% \cite{Sanchis2011} analyzed four months of Kepler data and found evidence for starspots 
+% clustered at two specific active latitudes, deriving two possible solutions for the stellar obliquity and 
+% active latitude: either $\psi = 106^{+15}_{-11}$$^\circ$ and $l = 19.7^{+1.5}_{-2.2}$$^\circ$, or $\psi = 97^{+8}_{-4}$$^\circ$ 
+% and $l = 67^{+2}_{-4}$$^\circ$. Moreover, our analysis reveals a broader, single-peaked latitudinal distribution centered near the stellar 
+% equator at $14^{+3.67}_{-4.01}$$^\circ$ with a substantial spread ($\sigma_\phi = 16.9^{+1.38}_{-1.44}$ degrees), 
+% rather than the discrete bimodal active latitude bands reported in literature \citep{Morris2017,Sanchis2011}.
+% All three occultation-based studies agree that HAT-P-11 exhibits magnetic activity substantially greater than solar levels and 
+% confirm the misaligned nature of the system
+
+% The substantial number of spots ($16.06\pm2$) combined with their large individual sizes 
+% suggests a complex magnetic field structure with multiple active regions distributed primarily 
+% in equatorial latitudes. This configuration may reflect the different dynamo processes operating 
+% in K-dwarf stars compared to solar-type stars, potentially related to the deeper convection zones 
+% and different rotation-activity relationships in lower-mass stars. 
+
+
+\section{Discussion}
+\label{sec:discussion}
+Our analysis of Kepler-63 and Kepler-17 reveals some evidence into the diverse
+manifestations of stellar magnetic activity across stars of different spectral types, ages, and
+system architectures. While the \texttt{StarryStarryProcess} framework yields robust constraints
+on spot sizes, contrasts, and latitudinal distributions in each system, the collective trends are
+particularly illuminating for understanding stellar dynamos.
+
+\subsection{Activity Levels and Spot Properties}
+The four systems span a continuum of magnetic activity. Kepler-63, the youngest and most active
+target in our sample, exhibits large-amplitude rotational modulation, frequent spot evolution, and
+a well-defined bimodal spot distribution at $\pm30^\circ$ latitudes. Kepler-17 occupies an intermediate regime: 
+its surface maps reveal
+fewer but significantly higher-contrast spots, producing a bimodal distribution at lower latitudes
+($\pm15^\circ$). The mid-latitude belts observed in Kepler-63 and
+Kepler-17 resemble solar active-latitude patterns but are shifted to higher or lower latitudes,
+respectively. 
+
+Our inferred spot properties are broadly consistent with the earlier Kepler studies, 
+while also highlighting method-dependent differences that bear on interpretation.  
+For Kepler-17, \cite{Lanza2019} used a maximum-entropy reconstruction of the long-cadence 
+out-of-transit light curve and found persistent active longitudes.
+For Kepler-63, \cite{Netto2019} used transit occultation mapping of 150 short-cadence transits 
+to measure the spot latitudes directly, and reported a clear bimodal latitude distribution 
+with a gap near $\sim$34$^\circ$.
+Our joint \texttt{StarryStarryProcess} inferences recover the same broad phenomenology 
+but with some quantitative differences that reflect modelling choices and effective resolution. 
+We infer characteristic spot angular radii near $\sim$10$^\circ$ for both stars 
+(Kepler-63: $10.02^{+0.03}_{-0.02}{}^\circ$; Kepler-17: $10.09^{+0.06}_{-0.05}{}^\circ$), consistent with 
+the spot sizes reported in the transit-mapping literature. For Kepler-17 we recover bimodal 
+belts but concentrated closer to the equator (peaks at $\sim\pm15^\circ$).
+We need to keep in mind that map geometry and observables differ while comparing different results with
+different techniques. \cite{Lanza2019} reconstruct longitudinal spot filling factors from 
+long-cadence out-of-transit photometry and validate against occulted spots, while \cite{Netto2019} 
+derive direct spot latitudes from individual occultations; our method jointly models rotational modulation and transits, 
+which helps break some degeneracies but also mixes the information that each single technique isolates.
+
+We also show two different spin-orbit orientations. The high-obliquity system, Kepler-63, reveals more 
+complex or structured spot distributions, with the
+planetary transit chord sampling a broad swath of stellar latitudes. By contrast, the nearly aligned system Kepler-17 
+primarily reveals equatorial activity, both because of genuine magnetic preferences and
+because the transit geometry restricts the probed latitudes. 
+
+\subsection{Resolution Limitations}
+
+A critical limitation of our analysis stems from the spherical harmonic resolution employed in the \texttt{StarryStarryProcess} 
+model. With $\ell_{\rm max} = 15$, the model cannot adequately represent starspots with angular radii smaller than approximately 
+$10^\circ$, a constraint that becomes particularly problematic for Sun-like stars where observed spot sizes are 
+typically much smaller \citep{Baumann2005}. For example, the largest recorded sunspot reached only $6^\circ$ in angular radius, 
+while typical active region complexes are considerably smaller. This resolution limit manifests as an 
+effective lower bound in our posterior distributions for spot parameters, artificially constraining the model to 
+favor large starspot features. The model's inability to reproduce the sharp, 
+localized flux variations characteristic of small starspot occultations leads to compensatory adjustments in other parameters, 
+potentially biasing our estimates of spot coverage, contrast, and spatial distribution. The posterior samples consistently 
+push against the resolution limit in both Kapler-63 and Kepler-17, suggesting that the true underlying spot populations contain 
+significant populations of features below our detection threshold.
+
+The model attempts to reconcile observed flux variations with the active latitude framework by 
+adjusting the spot latitude distribution parameters $\{\mu_\psi, \sigma_\psi\}$ to place the observed variability 
+within the geometrically accessible region. However, when the true spot population consists of smaller 
+features distributed across a broader latitude range than our model can represent, this optimization 
+process may converge on biased solutions. The active latitude inference becomes dominated by the largest, 
+most readily detectable features, while the contribution from numerous smaller spots may be misattributed to 
+changes in the overall activity level or latitude distribution width. Potentially, these systematic effects can impact 
+our obliquity measurements, as the stellar inclination-obliquity degeneracy breaking relies critically on 
+accurate modeling of spot latitude distributions and their intersection with the transit geometry. If the model 
+systematically misrepresents the true spot population due to resolution limitations, the resulting obliquity constraints 
+may be biased toward configurations that compensate for the missing small-scale structure. Despite these resolution 
+limitations, our methodology successfully recovers meaningful obliquity measurements for the systems analyzed. 
+The obliquity constraints remain robust because they primarily depend on the large-scale pattern of 
+spot occultations during transits and the overall rotational modulation signature, 
+rather than the detailed representation of individual small spots. The geometric relationship between the 
+transit chord, stellar rotation axis, and dominant spot-bearing latitudes can be 
+inferred even when individual spots are not perfectly resolved. The active latitude framework captures the mean and 
+dispersion of the spot distribution, parameters that remain well-constrained even when the underlying population 
+contains unresolved small-scale structure. The aggregate photometric signature from many small spots can still inform the 
+overall latitude distribution parameters, allowing the model to recover meaningful constraints on the bulk 
+properties of stellar magnetic activity.
+
+
+% \subsection{Toward a Unified Picture of Dynamo Evolution}
+% Taken together, these results suggest a coherent picture of dynamo evolution across spectral type
+% and system geometry. Young, rapidly rotating G-dwarfs exhibit high-latitude activity, which
+% shifts equatorward as the star spins down. K-dwarfs, with their deeper convection zones, develop
+% larger and darker spots with more equatorial distributions, consistent with theoretical predictions
+% of stronger, more deeply rooted flux tubes \citep{Isik2018,Strassmeier2006}.
+
+% This comparative framework places our targets along a continuum of magnetic activity: from the
+% structured, solar-like belts of G-type stars, to the broad equatorial activity of K-type dwarfs. The
+% consistency of these trends across multiple systems suggests that stellar type and evolutionary
+% state are primary drivers of magnetic topology, while obliquity controls our observational
+% perspective. We plan on extending this analysis to larger samples of transiting exoplanet hosts which will enable
+% population-level constraints on dynamo theory.
+
 
 \section{Conclusions}
 
+We have applied the \texttt{StarryStarryProcess} framework to archival \textit{Kepler} light curves
+of two transiting exoplanet host stars: Kepler-63 and Kepler-17. This
+analysis expands upon the validation of the method on TOI-3884 presented in Paper~I, and
+demonstrates its ability to jointly constrain planetary parameters and stellar surface magnetic
+properties across diverse stellar environments.
+
+Our main conclusions are as follows:
+
+\begin{enumerate}
+    \item Both stars show a characteristic spot scale of $\sim$10$^\circ$, which is the 
+    natural resolution limit of our spherical-harmonic representation but also agrees with spot 
+    sizes inferred from transit analyses.  
+
+    \item Both stars
+    exhibit bimodal spot distributions, with active latitudes at $\pm 30^\circ$ and $\pm 15^\circ$,
+    respectively. 
+
+    \item The misaligned system Kepler-63 reveals more complex or structured spot distributions, while the aligned system
+    Kepler-17 shows primarily close to equatorial activity. This may partly reflect
+    intrinsic stellar differences, but also illustrates the observational bias introduced by
+    transit geometry.
+
+    \item We were able to constrain stellar obliquity and inclinations using one-band photometry and compare them
+    with the literature spot-induced or Rossiter-Maclaughlin measurements, which validates our approach.
+\end{enumerate}
+
+This comparative framework demonstrates the power of transit photometry, when combined with
+Bayesian surface-mapping tools, to probe stellar magnetism beyond the Sun. With larger samples
+from \textit{TESS} and future missions such as \textit{PLATO}, population-level studies will enable
+direct tests of dynamo theory across stellar types and evolutionary stages, and clarify the role of
+stellar obliquity in shaping both magnetic activity and planetary system architectures.
+
+
 \section*{Acknowledgments}
-S.S. thanks Adrian Price-Wheelan, Lionel Garcia, and the Data Group at Flatiron Institute for the valuable discussions. 
-S.S. also acknowledges a graduate fellowship at the Kavli Institute for Theoretical Physics, 
-during which this research was completed. S.S. thanks the LSSTC Data Science Fellowship Program, funded by LSSTC, 
-NSF Cybertraining Grant number 1829740, the Brinson Foundation, and the Moore Foundation; her participation in the program has 
-benefited this work.
+S.S. thanks the LSSTC Data Science Fellowship Program, funded by
+LSSTC, NSF Cybertraining Grant number 1829740, the Brinson Foundation, and the
+Moore Foundation; her participation in the program has benefited this work.
 
 \bibliography{bib}
 \end{document}
