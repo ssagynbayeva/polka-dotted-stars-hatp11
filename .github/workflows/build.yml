@@ -28,7 +28,8 @@ jobs:
       - name: Configure Conda
         run: |
           # Set strict priority and verify
-          conda config --set channel_priority flexible
+          # conda config --set channel_priority flexible
+          conda config --set channel_priority strict
       
       - name: Build the article PDF
         id: build
