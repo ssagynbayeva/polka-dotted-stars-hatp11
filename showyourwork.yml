@@ -1,2 +1,5 @@
 version: 0.3.0
 
+dependencies:
+  src/tex/ms.tex:
+    - src/tex/bib.bib
