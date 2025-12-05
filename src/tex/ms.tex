@@ -77,7 +77,7 @@ radius measurements or imitate atmospheric signatures -- what we call a "stellar
 The need to accurately account for these 
 effects has grown with the emergence of high-precision time-series data, as demonstrated by works
 of active exoplanet hosts across broadband photometry and infrared 
-spectroscopy \citep[e.g.,][]{Ducrot2018, Morris2018, Sanchis2011, Valio2017}.
+spectroscopy \citep[e.g.,][]{Ducrot2018, Morris2018,Sanchis2011,Valio2017}.
 
 Recent observations have further emphasized the challenges posed by stellar contamination. In several JWST datasets, 
 small-scale surface heterogeneities have been shown to interfere with atmospheric retrievals at levels approaching 
@@ -90,7 +90,7 @@ The basic idea of inferring surface features from transit bumps dates back to th
 signals \citep[e.g.,][]{Huber2010, Oshagh2013, Tregloan-Reed2013, Beky2014, Montalto2014, Maxted2016, Herrero2016, Juvan2018, Scandariato2017,paper1}.
 
 In \cite{paper1} (hereafter Paper~I), we introduced the \texttt{StarryStarryProcess} framework as a flexible, 
-probabilistic model for interpreting these combined signatures of stellar activity. By coupling the spherical 
+probabilistic model for interpreting these combined signatures of stellar activity. By coupling the spherical  
 harmonic machinery of \texttt{starry} \citep{Luger2019} with the spot-population formalism 
 of \texttt{StarryProcess} \citep{Luger2021b}, the method treats rotational variability and 
 spot-crossing events within a unified generative model. This approach was shown to alleviate the 
@@ -111,7 +111,7 @@ Two systems, Kepler-63 and Kepler-17, stand out as prime targets
 due to their strong rotational modulation and frequent spot occultations, making them excellent laboratories 
 for exploring how magnetic activity manifests across different stellar hosts.
 
-In this work, we apply \texttt{StarryStarryProcess} to both Kepler-63 and Kepler-17 in order to 
+In this work, we apply \texttt{StarryStarryProcess} to both Kepler-63 and Kepler-17 in order to  
 extract starspot population properties in a consistent manner, evaluate how our inferences compare with 
 previous transit-based analyses, and derive updated constraints on the stellar obliquities. 
 By analyzing these two systems using a common probabilistic framework, we extend the validation of 
@@ -477,8 +477,8 @@ stellar disk.
 The latitudinal distribution of stellar activity in Kepler-17 exhibits yet another distinct pattern, 
 further illustrating the diversity of magnetic field topologies across different stellar types and activity levels. 
 Figure \ref{fig:kepler17-activelats} shows a bimodal structure similar to Kepler-63, but with the activity bands 
-located at different latitudes. The probability density reveals two symmetric peaks centered at approximately $\pm 15°$, 
-closer to the equator than the $\pm 30°$ bands observed in Kepler-63. The black curve represents the mean posterior distribution, while the pink 
+located at different latitudes. The probability density reveals two symmetric peaks centered at approximately $\pm 15^\circ$, 
+closer to the equator than the $\pm 30^\circ$ bands observed in Kepler-63. The black curve represents the mean posterior distribution, while the pink 
 curves show individual MCMC samples, confirming the robustness of this mid-latitude bimodal pattern. The narrow latitudinal 
 spread ($\sigma_\phi = 4.09^{+1.9}_{-1.7}$ degrees) indicates well-defined, concentrated activity zones, suggesting a 
 more organized magnetic field structure than the broader distributions seen in the other systems.
@@ -490,7 +490,7 @@ more organized magnetic field structure than the broader distributions seen in t
         \includegraphics[width=\linewidth]{figures/active-lats_kepler17.png}
         \caption{Latitudinal distribution of stellar activity for Kepler-17 derived from spot modeling. 
         The probability density function shows a bimodal structure with two symmetric peaks centered at approximately 
-        $\pm 15°$ latitude. The black line represents the mean posterior distribution while pink curves show individual 
+        $\pm 15^\circ$ latitude. The black line represents the mean posterior distribution while pink curves show individual 
         MCMC samples. This mid-latitude bimodal pattern differs from the higher-latitude bands found in Kepler-63, demonstrating the diversity of magnetic field topologies 
         across stellar activity levels.}
         \label{fig:kepler17-activelats}
